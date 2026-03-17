@@ -88,20 +88,20 @@ export default function PortfolioPage() {
           {/* Stats */}
           <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
             <div className="bg-white p-6 rounded-lg shadow text-center">
-              <div className="text-4xl font-bold text-blue-900 mb-2">15+</div>
-              <div className="text-gray-600">Projets Complétés</div>
+              <div className="text-4xl font-bold text-blue-900 mb-2">6+</div>
+              <div className="text-gray-600">Projets & Services</div>
             </div>
             <div className="bg-white p-6 rounded-lg shadow text-center">
-              <div className="text-4xl font-bold text-blue-900 mb-2">10+</div>
-              <div className="text-gray-600">Clients Satisfaits</div>
+              <div className="text-4xl font-bold text-blue-900 mb-2">2</div>
+              <div className="text-gray-600">Associations</div>
             </div>
             <div className="bg-white p-6 rounded-lg shadow text-center">
               <div className="text-4xl font-bold text-blue-900 mb-2">3</div>
-              <div className="text-gray-600">Projets Actifs</div>
+              <div className="text-gray-600">Années d'Études</div>
             </div>
             <div className="bg-white p-6 rounded-lg shadow text-center">
               <div className="text-4xl font-bold text-blue-900 mb-2">100%</div>
-              <div className="text-gray-600">Satisfaction</div>
+              <div className="text-gray-600">Engagement</div>
             </div>
           </div>
 

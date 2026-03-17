@@ -83,13 +83,14 @@ export default function Home() {
               viewport={{ once: true }}
               variants={fadeIn}
             >
-              <div className="relative h-96 rounded-lg overflow-hidden shadow-2xl">
-                <Image
-                  src="https://sspark.genspark.ai/cfimages?u1=qi%2BBIdIQWamYlb7Z7d6NWFgOgvHbR4v3SUOMBDfrWSLNlTWNWwh6gCFzWZD62IIVAPqwZG6liWl51U0q6JbfyruVvOph48wX6carqMCuB13PSIqY987NmuqBJ5FlwmasdxgOA0g%2FlREl9DEwWaljpx4qgz%2FH6K%2BY7F37ZNn4bvyO5V%2FhFmYsTXMc&u2=RALBMxZs0uzqdKtH&width=2560"
-                  alt="Finance Digitale"
-                  fill
-                  className="object-cover"
-                />
+              <div className="relative h-96 rounded-lg overflow-hidden shadow-2xl bg-gradient-to-br from-blue-100 to-indigo-100 flex items-center justify-center">
+                <div className="text-center p-8">
+                  <div className="w-32 h-32 bg-blue-900 rounded-full mx-auto mb-4 flex items-center justify-center text-white text-4xl font-bold">
+                    SP
+                  </div>
+                  <p className="text-gray-700 font-semibold">Samuel POODA</p>
+                  <p className="text-gray-600 text-sm">Finance & Digital</p>
+                </div>
               </div>
             </motion.div>
 
@@ -100,16 +101,19 @@ export default function Home() {
               variants={fadeIn}
             >
               <h3 className="text-3xl font-bold text-gray-900 mb-6">
-                Étudiant en Finance & Expert Digital
+                Étudiant en Finance & Comptabilité
               </h3>
               <p className="text-lg text-gray-700 mb-4">
-                Étudiant en troisième année de licence en <strong>Finance et Comptabilité</strong> à l'ESMC Business School à Casablanca, après l'obtention d'un Bac+2 en Management des Affaires et Transformation Digitale.
+                Je suis <strong>POODA ASER SAMUEL</strong>, étudiant en troisième année de licence en <strong>Finance et Comptabilité</strong> à l'ESMC Business School à Casablanca.
               </p>
               <p className="text-lg text-gray-700 mb-4">
-                Je me positionne à l'intersection de la <strong>Finance Digitale</strong> et de la <strong>Transformation Digitale</strong>, avec une expertise en Private Equity, automatisation et développement web.
+                Ce parcours me permet de renforcer les compétences développées en <strong>Management des Affaires et Transformation Digitale</strong> (Bac+2), tout en consolidant mes savoirs en comptabilité, marketing et finance.
+              </p>
+              <p className="text-lg text-gray-700 mb-4">
+                <strong>Entrepreneur passionné</strong> et cofondateur d'une association engagée dans l'humanitaire, je me définis avant tout comme un bâtisseur de solutions utiles et humaines.
               </p>
               <p className="text-lg text-gray-700 mb-6">
-                Mon objectif : devenir un acteur polyvalent capable de connecter les stratégies financières aux innovations technologiques pour créer de la valeur ajoutée.
+                En tant que personne en situation de handicap, j'ai appris à développer une <strong>résilience active</strong> et un regard différent sur le monde : chaque limite apparente est pour moi un moteur d'innovation et de dépassement de soi.
               </p>
               <Link 
                 href="/about" 

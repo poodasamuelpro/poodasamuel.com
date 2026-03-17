@@ -1,0 +1,11 @@
+# *
+User-agent: *
+Allow: /
+Disallow: /api/
+Disallow: /admin/
+
+# Host
+Host: https://poodasamuel.com
+
+# Sitemaps
+Sitemap: https://poodasamuel.com/sitemap.xml
