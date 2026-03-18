@@ -1,0 +1,16 @@
+module.exports = {
+  apps: [
+    {
+      name: 'poodasamuel-webapp',
+      script: 'npx',
+      args: 'next dev --port 3000 --hostname 0.0.0.0',
+      env: {
+        NODE_ENV: 'development',
+        PORT: 3000
+      },
+      watch: false,
+      instances: 1,
+      exec_mode: 'fork'
+    }
+  ]
+}

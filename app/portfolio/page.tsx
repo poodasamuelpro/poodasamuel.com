@@ -1,192 +1,313 @@
-import { Metadata } from 'next';
-import { generateSEO } from '@/lib/seo';
-import Navbar from '@/components/Navbar';
-import Footer from '@/components/Footer';
-import Image from 'next/image';
-import { FaExternalLinkAlt } from 'react-icons/fa';
+"use client";
 
-export const metadata: Metadata = generateSEO({
-  title: 'Portfolio - Mes Projets & Réalisations',
-  description: 'Découvrez mes projets : IziCard, Collectif Leaders Unis, sites WordPress, design graphique et engagement associatif.',
-  keywords: ['Portfolio', 'IziCard', 'WordPress', 'Design', 'Association', 'Humanitaire'],
-  canonical: '/portfolio',
-});
+import { motion } from 'framer-motion';
+import Image from 'next/image';
+import Link from 'next/link';
+import { FaExternalLinkAlt, FaRocket, FaUsers, FaCode, FaPalette, FaChartLine, FaHeart } from 'react-icons/fa';
 
 export default function PortfolioPage() {
   const projects = [
     {
-      title: 'IziCard - Cartes de Visite Connectées NFC',
-      category: 'Startup & Innovation',
-      description: 'Fondateur et promoteur d\'IziCard, une startup qui commercialise des cartes de visite connectées NFC et des bracelets de santé connectés. Innovation technologique au service des professionnels.',
-      image: 'https://sspark.genspark.ai/cfimages?u1=9zDJOzZmExJWkwCVH1qHfHaZDeegdMBDkb57SzbOyrax5U0gOgtDwP8V7Fo0PXwYH6keZ70C6SKAPBUE%2FQxj%2BLHMXjadhC5HdjtSeocmXxGIn%2BLgTDxf2x1nIaxpDQ%2FLGjeKY%2B2%2BZ03GU4ZgIVQVjzsdSxOBUPXOMw%3D%3D&u2=THDCzM4LTZIz8bMP&width=2560',
-      tags: ['NFC', 'IoT', 'Startup', 'Innovation'],
-      link: '#',
-      status: 'Actif'
+      title: "IziCard - Cartes de Visite NFC",
+      category: "Startup & Innovation",
+      description: "Co-fondateur et développeur d'une startup innovante proposant des cartes de visite NFC intelligentes et des bracelets santé connectés. Gestion complète du développement produit, stratégie marketing et mise sur le marché.",
+      image: "/images/izicard-logo.png",
+      tags: ["Entrepreneuriat", "NFC", "Innovation", "Marketing Digital"],
+      link: "#",
+      status: "En cours",
+      icon: FaRocket,
+      color: "from-blue-500 to-cyan-500"
     },
     {
-      title: 'Collectif Leaders Unis',
-      category: 'Association & Leadership',
-      description: 'Cofondateur et président de l\'association Collectif Leaders Unis. Développement du leadership, organisation d\'événements et coordination d\'actions concrètes avec sérieux et responsabilité.',
-      image: 'https://sspark.genspark.ai/cfimages?u1=sokljToTPZGpVPiqa8fEiX7%2BZKTSjikFLKf9fOdV%2FU4zwkHSsw5QBsmFZETsRmaQh%2BRN1y0km6iV%2FG20dxfO3mxsQhc3ZgqgBtOTz259iMlzOBB7P%2Fc%2FZyTlI%2B93fuNlB25%2FAdieyoI%2B5F5EazInWI9FlDGfURiEVw%3D%3D&u2=Zpv2lW5y5rygpiKm&width=2560',
-      tags: ['Leadership', 'Association', 'Humanitaire', 'Événementiel'],
-      link: '#',
-      status: 'Actif'
+      title: "Collectif Leaders Unis",
+      category: "Association & Leadership",
+      description: "Co-fondateur et président d'une association humanitaire axée sur le leadership, l'organisation et le travail d'équipe. Coordination d'événements, gestion d'équipe et développement de projets communautaires.",
+      image: "/images/collectif-logo.png",
+      tags: ["Leadership", "Humanitaire", "Organisation", "Engagement"],
+      link: "#",
+      status: "Actif",
+      icon: FaUsers,
+      color: "from-purple-500 to-pink-500"
     },
     {
-      title: 'Sites Web WordPress',
-      category: 'Développement Web',
-      description: 'Conception de sites modernes et responsives avec WordPress et Elementor. Sites vitrines, portfolios et e-commerce avec intégration de fonctionnalités sur mesure.',
-      image: 'https://sspark.genspark.ai/cfimages?u1=00F59DItlOMe0RQMwuNTgTigPO8mP2vaduLjz9FJ7mC8QDubIat05B50rrCQxml4TBGxQqayKuuH%2FN8Xq6llv326uslj%2FfQlUCuwdJjsc96nEGuWnu6UVQyjt8ELWXo5%2F2jWCz7Gifkg%2F%2Fgld7v9wqxEL%2FrBhhaDPQ%3D%3D&u2=fZ9E291TLFI97lDs&width=2560',
-      tags: ['WordPress', 'Elementor', 'Web Design', 'Responsive'],
-      link: '#',
-      status: 'Services actifs'
+      title: "Sites Web WordPress Professionnels",
+      category: "Développement Web",
+      description: "Création de sites vitrines modernes et responsives pour entreprises avec WordPress et Elementor. Design moderne, optimisation SEO, intégration de systèmes de paiement et stratégie de contenu.",
+      image: "/images/smartcard-logo.png",
+      tags: ["WordPress", "Elementor", "SEO", "Responsive Design"],
+      link: "#",
+      status: "Freelance",
+      icon: FaCode,
+      color: "from-green-500 to-teal-500"
     },
     {
-      title: 'Stratégie Digitale & Marketing',
-      category: 'Marketing Digital',
-      description: 'Définition et mise en œuvre de stratégies digitales : contenu, réseaux sociaux, acquisition de trafic et engagement des audiences. Campagnes publicitaires sur Google, Facebook, Instagram.',
-      image: 'https://sspark.genspark.ai/cfimages?u1=jzLLOeox3V5vNaaU7%2FvUXzbNyVJBizifZ3UVoULmxh%2Fp2%2FAUKE6lEGklVi5KVh%2BjUiH5fMigd84v0S7nSRe%2BqJhsWcfTG40G62AnRVjeY997VgilwYA4dvs2to25nrwSZO2AELdCvKXdXB1%2FvfZi8C5fx99M7qcX2Q%3D%3D&u2=9KI4m4yOKFB9zn3w&width=2560',
-      tags: ['Marketing', 'SEO', 'Ads', 'Social Media'],
-      link: '#',
-      status: 'Services actifs'
+      title: "Stratégie Digitale & Marketing",
+      category: "Marketing & Communication",
+      description: "Élaboration de stratégies digitales complètes : content marketing, social media, acquisition de trafic, SEO/SEA, analytics. Campagnes publicitaires sur Google Ads, Facebook et Instagram.",
+      image: "/images/envers-decor.jpg",
+      tags: ["Stratégie", "SEO", "Social Media", "Google Analytics"],
+      link: "#",
+      status: "Service",
+      icon: FaChartLine,
+      color: "from-orange-500 to-red-500"
     },
     {
-      title: 'Design Graphique & Identité Visuelle',
-      category: 'Design',
-      description: 'Réalisation de contenus visuels percutants : logos, affiches, bannières, flyers, présentations et chartes graphiques personnalisées avec Canva et CapCut.',
-      image: 'https://sspark.genspark.ai/cfimages?u1=ve9Z8NGv4Sl1k5VHTgxWNwL%2BRGzgMpgGsCDQHeoLmZP5%2BHB98LvAl5Lbtl5TsB5AWOqQXSCvs5heFdoULuetn3UtIWIQbuvlsG7pCf2v0k0fJzMvKWHD%2BnnfwnCHjnkFa%2BY2Liu0zPPweL36msCxQ5RcXI7fPDrU6g%3D%3D&u2=uaVT0lMvtaHP6G6%2B&width=2560',
-      tags: ['Canva', 'Design', 'Branding', 'CapCut'],
-      link: '#',
-      status: 'Services actifs'
+      title: "Design Graphique & Contenu Visuel",
+      category: "Création & Design",
+      description: "Création de logos, flyers, présentations visuelles percutantes et montage vidéo professionnel. Utilisation de Canva pour le design graphique et CapCut pour l'édition vidéo.",
+      image: "/images/welcome-morocco.png",
+      tags: ["Canva", "CapCut", "Design", "Vidéo"],
+      link: "#",
+      status: "Service",
+      icon: FaPalette,
+      color: "from-pink-500 to-rose-500"
     },
     {
-      title: 'Engagement Associatif',
-      category: 'Humanitaire & Social',
-      description: 'Membre actif de AJPD/BF (Alliance des Jeunes pour la Paix et le Développement au Burkina Faso) et AECAM Casablanca. Contribution à des causes sociales importantes.',
-      image: 'https://sspark.genspark.ai/cfimages?u1=6cn%2F5Att5dHEgS71M9w%2BAHh9cic%2FVEYpxZN9TUY7CEBc6MEW0QBZqArKKzLLRyC6Nc0SkMWRwlREgR3Hte3hPPxD7co2gK8igVl%2BUCUAZVQVt2S2ePM76h1l%2B4g15KRwOinGpiFr%2F%2BJoafCqh6b%2BLOspWon7tEltJM51c%2Bth3wxFSFs2ChUZTdMcGEH5wUR79QpcyWYrLQ%3D%3D&u2=uFeBf8PxaAgVyLA4&width=2560',
-      tags: ['Humanitaire', 'AJPD/BF', 'AECAM', 'Solidarité'],
-      link: '#',
-      status: 'Engagement actif'
+      title: "Engagement Associatif",
+      category: "Engagement & Réseau",
+      description: "Membre actif de plusieurs associations (AJPD/BF, AECAM Casablanca) promouvant la solidarité, le développement et le réseau international. Organisation d'événements et projets de développement.",
+      image: "/images/soutenance.jpg",
+      tags: ["AJPD", "AECAM", "Solidarité", "Réseau"],
+      link: "#",
+      status: "Actif",
+      icon: FaHeart,
+      color: "from-indigo-500 to-purple-500"
     }
   ];
 
+  const stats = [
+    { number: "6+", label: "Projets Réalisés", icon: FaRocket },
+    { number: "2", label: "Startups Fondées", icon: FaUsers },
+    { number: "15+", label: "Clients Satisfaits", icon: FaChartLine },
+    { number: "4", label: "Associations", icon: FaHeart }
+  ];
+
   return (
-    <>
-      <Navbar />
-      
-      <main className="pt-24 pb-20 bg-gray-50 min-h-screen">
-        <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-          {/* Header */}
-          <div className="text-center mb-16">
-            <h1 className="text-5xl font-bold text-gray-900 mb-4">Mon Portfolio</h1>
-            <div className="w-24 h-1 bg-blue-900 mx-auto mb-6"></div>
-            <p className="text-xl text-gray-600 max-w-3xl mx-auto">
-              Découvrez mes projets, engagements et réalisations en développement web, design et action sociale.
+    <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-purple-50">
+      {/* Hero Section */}
+      <section className="py-20 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ duration: 0.6 }}
+            className="text-center max-w-4xl mx-auto"
+          >
+            <h1 className="text-5xl md:text-6xl font-bold mb-6">
+              Mon Portfolio
+            </h1>
+            <p className="text-xl opacity-90">
+              Découvrez mes projets, réalisations et engagements qui reflètent ma passion pour l'innovation et le service
             </p>
-          </div>
+          </motion.div>
+        </div>
+      </section>
 
-          {/* Stats */}
-          <div className="grid grid-cols-2 md:grid-cols-4 gap-6 mb-16">
-            <div className="bg-white p-6 rounded-lg shadow text-center">
-              <div className="text-4xl font-bold text-blue-900 mb-2">6+</div>
-              <div className="text-gray-600">Projets & Services</div>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow text-center">
-              <div className="text-4xl font-bold text-blue-900 mb-2">2</div>
-              <div className="text-gray-600">Associations</div>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow text-center">
-              <div className="text-4xl font-bold text-blue-900 mb-2">3</div>
-              <div className="text-gray-600">Années d'Études</div>
-            </div>
-            <div className="bg-white p-6 rounded-lg shadow text-center">
-              <div className="text-4xl font-bold text-blue-900 mb-2">100%</div>
-              <div className="text-gray-600">Engagement</div>
-            </div>
-          </div>
-
-          {/* Projects Grid */}
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8">
-            {projects.map((project, index) => (
-              <div key={index} className="bg-white rounded-lg overflow-hidden shadow-lg hover:shadow-2xl transition-shadow">
-                {/* Project Image */}
-                <div className="relative h-48 overflow-hidden">
-                  <Image
-                    src={project.image}
-                    alt={project.title}
-                    fill
-                    className="object-cover hover:scale-110 transition-transform duration-300"
-                  />
-                  <div className="absolute top-4 right-4">
-                    <span className={`px-3 py-1 rounded-full text-xs font-semibold ${
-                      project.status === 'Actif' || project.status === 'Services actifs' || project.status === 'Engagement actif' ? 'bg-green-500 text-white' :
-                      'bg-blue-500 text-white'
-                    }`}>
-                      {project.status}
-                    </span>
-                  </div>
-                </div>
-
-                {/* Project Content */}
-                <div className="p-6">
-                  <div className="text-sm text-blue-900 font-semibold mb-2">{project.category}</div>
-                  <h3 className="text-xl font-bold text-gray-900 mb-3">{project.title}</h3>
-                  <p className="text-gray-600 mb-4 text-sm">{project.description}</p>
-                  
-                  {/* Tags */}
-                  <div className="flex flex-wrap gap-2 mb-4">
-                    {project.tags.map((tag, idx) => (
-                      <span key={idx} className="bg-blue-50 text-blue-900 px-2 py-1 rounded text-xs font-medium">
-                        {tag}
-                      </span>
-                    ))}
-                  </div>
-
-                  {/* Links */}
-                  <div className="flex gap-4">
-                    <a 
-                      href={project.link} 
-                      className="flex items-center gap-2 text-blue-900 hover:text-blue-700 font-medium text-sm"
-                    >
-                      <FaExternalLinkAlt /> Voir le projet
-                    </a>
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
-
-          {/* CTA */}
-          <div className="mt-16 text-center">
-            <h3 className="text-3xl font-bold text-gray-900 mb-4">Vous avez un projet ?</h3>
-            <p className="text-lg text-gray-600 mb-8 max-w-2xl mx-auto">
-              Discutons de vos besoins en développement web, design ou accompagnement digital.
-            </p>
-            <a 
-              href="/contact" 
-              className="inline-block bg-blue-900 text-white px-8 py-4 rounded-lg font-semibold hover:bg-blue-800 transition-colors"
-            >
-              Me Contacter
-            </a>
+      {/* Stats Section */}
+      <section className="py-12 -mt-8">
+        <div className="container mx-auto px-4">
+          <div className="grid grid-cols-2 md:grid-cols-4 gap-4 max-w-5xl mx-auto">
+            {stats.map((stat, index) => {
+              const Icon = stat.icon;
+              return (
+                <motion.div
+                  key={stat.label}
+                  initial={{ opacity: 0, y: 20 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="bg-white rounded-2xl shadow-xl p-6 text-center transform hover:scale-105 transition-transform duration-300"
+                >
+                  <Icon className="text-4xl text-blue-600 mx-auto mb-3" />
+                  <h3 className="text-3xl font-bold text-gray-900 mb-1">{stat.number}</h3>
+                  <p className="text-gray-600 text-sm">{stat.label}</p>
+                </motion.div>
+              );
+            })}
           </div>
         </div>
-      </main>
+      </section>
 
-      <Footer />
+      {/* Projects Grid */}
+      <section className="py-20">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              Mes Réalisations
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              De l'entrepreneuriat au design, découvrez la diversité de mes projets
+            </p>
+          </motion.div>
 
-      {/* Structured Data */}
-      <script
-        type="application/ld+json"
-        dangerouslySetInnerHTML={{
-          __html: JSON.stringify({
-            "@context": "https://schema.org",
-            "@type": "CollectionPage",
-            "name": "Portfolio - Samuel POODA",
-            "description": "Projets et réalisations en développement web, design et action sociale",
-            "url": "https://poodasamuel.com/portfolio"
-          })
-        }}
-      />
-    </>
+          <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 max-w-7xl mx-auto">
+            {projects.map((project, index) => {
+              const Icon = project.icon;
+              return (
+                <motion.div
+                  key={project.title}
+                  initial={{ opacity: 0, y: 30 }}
+                  whileInView={{ opacity: 1, y: 0 }}
+                  viewport={{ once: true }}
+                  transition={{ duration: 0.5, delay: index * 0.1 }}
+                  className="group"
+                >
+                  <div className="bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300 h-full flex flex-col">
+                    {/* Project Image */}
+                    <div className="relative h-64 overflow-hidden bg-gradient-to-br from-gray-100 to-gray-200">
+                      <div className={`absolute inset-0 bg-gradient-to-br ${project.color} opacity-20`} />
+                      <Image
+                        src={project.image}
+                        alt={project.title}
+                        fill
+                        className="object-contain p-8 group-hover:scale-110 transition-transform duration-300"
+                      />
+                      <div className="absolute top-4 right-4">
+                        <span className="inline-block px-4 py-2 bg-white/90 backdrop-blur-sm text-gray-900 rounded-full text-sm font-semibold shadow-lg">
+                          {project.status}
+                        </span>
+                      </div>
+                    </div>
+
+                    {/* Project Content */}
+                    <div className="p-8 flex-1 flex flex-col">
+                      <div className="flex items-start justify-between mb-4">
+                        <div className="flex-1">
+                          <div className={`inline-block p-3 bg-gradient-to-br ${project.color} rounded-xl mb-3`}>
+                            <Icon className="text-2xl text-white" />
+                          </div>
+                          <p className="text-sm text-gray-600 font-semibold mb-2">{project.category}</p>
+                          <h3 className="text-2xl font-bold text-gray-900 mb-3 group-hover:text-blue-600 transition-colors">
+                            {project.title}
+                          </h3>
+                        </div>
+                      </div>
+
+                      <p className="text-gray-600 leading-relaxed mb-6 flex-1">
+                        {project.description}
+                      </p>
+
+                      {/* Tags */}
+                      <div className="flex flex-wrap gap-2 mb-6">
+                        {project.tags.map((tag) => (
+                          <span
+                            key={tag}
+                            className="px-3 py-1 bg-gray-100 text-gray-700 rounded-full text-xs font-medium hover:bg-gray-200 transition-colors"
+                          >
+                            {tag}
+                          </span>
+                        ))}
+                      </div>
+
+                      {/* CTA Button */}
+                      <Link
+                        href={project.link}
+                        className="inline-flex items-center space-x-2 text-blue-600 font-semibold hover:text-purple-600 transition-colors group/link"
+                      >
+                        <span>En savoir plus</span>
+                        <FaExternalLinkAlt className="text-sm group-hover/link:translate-x-1 group-hover/link:-translate-y-1 transition-transform" />
+                      </Link>
+                    </div>
+                  </div>
+                </motion.div>
+              );
+            })}
+          </div>
+        </div>
+      </section>
+
+      {/* Testimonials Section */}
+      <section className="py-20 bg-white">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, y: 30 }}
+            whileInView={{ opacity: 1, y: 0 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center mb-16"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
+              Témoignages
+            </h2>
+            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
+              Ce que disent mes collaborateurs et professeurs
+            </p>
+          </motion.div>
+
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-6xl mx-auto">
+            {[
+              {
+                quote: "Un étudiant motivé, rigoureux et créatif. Son engagement dans ses projets est remarquable.",
+                author: "Professeur ESMC",
+                role: "Enseignant",
+                avatar: "👨‍🏫"
+              },
+              {
+                quote: "Samuel allie parfaitement compétences techniques et qualités humaines. Un vrai professionnel.",
+                author: "Partenaire IziCard",
+                role: "Co-fondateur",
+                avatar: "👨‍💼"
+              },
+              {
+                quote: "Son travail en design et stratégie digitale a dépassé nos attentes. Très professionnel !",
+                author: "Client WordPress",
+                role: "Entrepreneur",
+                avatar: "👩‍💼"
+              }
+            ].map((testimonial, index) => (
+              <motion.div
+                key={index}
+                initial={{ opacity: 0, y: 30 }}
+                whileInView={{ opacity: 1, y: 0 }}
+                viewport={{ once: true }}
+                transition={{ duration: 0.5, delay: index * 0.1 }}
+                className="bg-gradient-to-br from-white to-gray-50 p-8 rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300"
+              >
+                <div className="text-5xl mb-4">{testimonial.avatar}</div>
+                <p className="text-gray-600 italic mb-6 leading-relaxed">
+                  "{testimonial.quote}"
+                </p>
+                <div>
+                  <p className="font-bold text-gray-900">{testimonial.author}</p>
+                  <p className="text-sm text-gray-600">{testimonial.role}</p>
+                </div>
+              </motion.div>
+            ))}
+          </div>
+        </div>
+      </section>
+
+      {/* CTA Section */}
+      <section className="py-20 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white">
+        <div className="container mx-auto px-4">
+          <motion.div
+            initial={{ opacity: 0, scale: 0.9 }}
+            whileInView={{ opacity: 1, scale: 1 }}
+            viewport={{ once: true }}
+            transition={{ duration: 0.6 }}
+            className="text-center max-w-3xl mx-auto"
+          >
+            <h2 className="text-4xl md:text-5xl font-bold mb-6">
+              Intéressé par une collaboration ?
+            </h2>
+            <p className="text-xl mb-8 opacity-90">
+              Que ce soit pour un projet web, une stratégie digitale ou du design, je suis à votre écoute !
+            </p>
+            <Link
+              href="/contact"
+              className="inline-flex items-center space-x-2 px-10 py-5 bg-white text-blue-600 rounded-full font-bold shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
+            >
+              <span>Travaillons ensemble</span>
+              <FaExternalLinkAlt />
+            </Link>
+          </motion.div>
+        </div>
+      </section>
+    </div>
   );
 }
