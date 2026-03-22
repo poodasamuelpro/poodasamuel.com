@@ -30,11 +30,10 @@ const SERVICES = [
     title: 'Analyse & Conseil Financier',
     desc: 'Analyse de bilans, reporting, tableaux de bord KPI et aide à la décision financière.',
     features: [
-      'Analyse de bilans et comptes de résultat',
+      'Analyse de bilans',
       'Construction de tableaux de bord KPI',
       'Reporting financier',
       'Aide à la décision d\'investissement',
-      'Audit et recommandations',
     ],
     accent: 'bg-blue-50 text-blue-600',
     border: 'border-blue-100',
