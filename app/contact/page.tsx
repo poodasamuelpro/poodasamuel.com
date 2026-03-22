@@ -2,72 +2,92 @@
 
 import { useState } from 'react';
 import { motion } from 'framer-motion';
-import { FaEnvelope, FaPhone, FaMapMarkerAlt, FaFacebook, FaInstagram, FaLinkedin, FaPaperPlane } from 'react-icons/fa';
+import {
+  FaEnvelope,
+  FaPhone,
+  FaMapMarkerAlt,
+  FaFacebook,
+  FaInstagram,
+  FaLinkedin,
+  FaWhatsapp,
+  FaPaperPlane,
+} from 'react-icons/fa';
+
+const fadeUp = (delay = 0) => ({
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] },
+});
+
+const fadeUpView = (delay = 0) => ({
+  initial: { opacity: 0, y: 20 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true },
+  transition: { duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] },
+});
 
 export default function ContactPage() {
   const [formData, setFormData] = useState({
     nom: '',
     email: '',
     objet: '',
-    message: ''
+    message: '',
   });
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [submitStatus, setSubmitStatus] = useState<'idle' | 'success' | 'error'>('idle');
 
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement | HTMLSelectElement>) => {
-    setFormData({
-      ...formData,
-      [e.target.name]: e.target.value
-    });
-  };
+  const handleChange = (
+    e: React.ChangeEvent<HTMLInputElement | HTMLTextAreaElement>
+  ) => setFormData({ ...formData, [e.target.name]: e.target.value });
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsSubmitting(true);
     setSubmitStatus('idle');
-
     try {
-      const response = await fetch('/api/send-email', {
+      const res = await fetch('/api/send-email', {
         method: 'POST',
-        headers: {
-          'Content-Type': 'application/json',
-        },
+        headers: { 'Content-Type': 'application/json' },
         body: JSON.stringify(formData),
       });
-
-      if (response.ok) {
+      if (res.ok) {
         setSubmitStatus('success');
         setFormData({ nom: '', email: '', objet: '', message: '' });
       } else {
         setSubmitStatus('error');
       }
-    } catch (error) {
+    } catch {
       setSubmitStatus('error');
     } finally {
       setIsSubmitting(false);
     }
   };
 
-  const contactInfo = [
+  const contactItems = [
     {
-      icon: FaMapMarkerAlt,
-      title: "Localisation",
-      content: "Casablanca, Maroc",
-      color: "from-blue-500 to-cyan-500"
+      icon: FaPhone,
+      label: 'Téléphone & WhatsApp',
+      value: '+212 649 289 798',
+      href: 'tel:+212649289798',
+      sub: 'Disponible en appel et sur WhatsApp',
+      wa: true,
     },
     {
       icon: FaEnvelope,
-      title: "Email",
-      content: "contact@poodasamuel.com",
-      link: "mailto:contact@poodasamuel.com",
-      color: "from-purple-500 to-pink-500"
+      label: 'Email',
+      value: 'poodasamuelpro@gmail.com',
+      href: 'mailto:poodasamuelpro@gmail.com',
+      sub: 'Réponse sous 24–48h',
+      wa: false,
     },
     {
-      icon: FaPhone,
-      title: "Téléphone",
-      content: "Disponible sur demande",
-      color: "from-green-500 to-teal-500"
-    }
+      icon: FaMapMarkerAlt,
+      label: 'Localisation',
+      value: 'Casablanca, Maroc',
+      href: null,
+      sub: 'La Gironde',
+      wa: false,
+    },
   ];
 
   const socialLinks = [
@@ -75,330 +95,294 @@ export default function ContactPage() {
       name: 'Facebook',
       icon: FaFacebook,
       href: 'https://www.facebook.com/share/1EnrY67Amd/?mibextid=wwXIfr',
-      color: 'hover:text-blue-600'
     },
     {
       name: 'Instagram',
       icon: FaInstagram,
       href: 'https://www.instagram.com/samuelpooda09',
-      color: 'hover:text-pink-600'
     },
     {
       name: 'LinkedIn',
       icon: FaLinkedin,
       href: 'http://www.linkedin.com/in/pooda-samuel',
-      color: 'hover:text-blue-700'
-    }
+    },
   ];
 
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-purple-50">
-      {/* Hero Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center max-w-4xl mx-auto"
+    <main className="min-h-screen bg-[#f9f9f8]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+
+      {/* ── HERO ── */}
+      <section className="relative pt-24 pb-16 px-6 overflow-hidden">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute top-0 right-0 w-[480px] h-[480px] opacity-60"
+          style={{
+            background:
+              'radial-gradient(ellipse at top right, rgba(59,130,246,0.08) 0%, transparent 65%)',
+          }}
+        />
+        <div className="max-w-3xl mx-auto">
+          <motion.p {...fadeUp(0)} className="text-xs font-bold tracking-[0.18em] text-blue-500 uppercase mb-4">
+            Contact
+          </motion.p>
+          <motion.h1
+            {...fadeUp(0.07)}
+            className="text-4xl md:text-5xl font-bold text-gray-900 leading-tight mb-5"
+            style={{ fontFamily: "'Sora', sans-serif" }}
           >
-            <h1 className="text-5xl md:text-6xl font-bold mb-6">
-              Contactez-moi
-            </h1>
-            <p className="text-xl opacity-90">
-              Vous avez un projet ? Une question ? N'hésitez pas à me contacter, je vous répondrai dans les plus brefs délais !
-            </p>
-          </motion.div>
+            Échangeons ensemble
+          </motion.h1>
+          <motion.p {...fadeUp(0.14)} className="text-gray-500 text-lg leading-relaxed max-w-xl">
+            Une question, une idée de collaboration ou simplement envie d'échanger ?
+            Je lis chaque message avec attention et vous réponds dans les meilleurs délais.
+          </motion.p>
         </div>
       </section>
 
-      {/* Contact Info Cards */}
-      <section className="py-12 -mt-8">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-6 max-w-5xl mx-auto">
-            {contactInfo.map((info, index) => {
-              const Icon = info.icon;
-              return (
-                <motion.div
-                  key={info.title}
-                  initial={{ opacity: 0, y: 20 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  className="bg-white rounded-2xl shadow-xl p-6 text-center transform hover:scale-105 transition-all duration-300"
-                >
-                  <div className={`w-16 h-16 bg-gradient-to-br ${info.color} rounded-full flex items-center justify-center mx-auto mb-4`}>
-                    <Icon className="text-2xl text-white" />
-                  </div>
-                  <h3 className="text-lg font-bold text-gray-900 mb-2">{info.title}</h3>
-                  {info.link ? (
-                    <a href={info.link} className="text-gray-600 hover:text-blue-600 transition-colors">
-                      {info.content}
-                    </a>
-                  ) : (
-                    <p className="text-gray-600">{info.content}</p>
-                  )}
-                </motion.div>
-              );
-            })}
-          </div>
+      {/* ── CONTACT CARDS ── */}
+      <section className="px-6 pb-16">
+        <div className="max-w-3xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-4">
+          {contactItems.map((item, i) => {
+            const Icon = item.icon;
+            const inner = (
+              <div className="flex flex-col items-center text-center gap-2">
+                <span className="w-11 h-11 rounded-2xl bg-blue-50 flex items-center justify-center mb-1">
+                  <Icon className="text-blue-500 text-lg" />
+                </span>
+                <p className="text-[11px] font-bold tracking-wider uppercase text-gray-400">
+                  {item.label}
+                </p>
+                <p className="text-sm font-semibold text-gray-800 leading-snug">{item.value}</p>
+                <p className="text-xs text-gray-400">{item.sub}</p>
+                {item.wa && (
+                  <a
+                    href="https://wa.me/212649289798"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    onClick={(e) => e.stopPropagation()}
+                    className="mt-1 inline-flex items-center gap-1.5 text-[11px] font-semibold text-green-600 hover:text-green-700 transition-colors"
+                  >
+                    <FaWhatsapp className="text-sm" />
+                    Ouvrir WhatsApp
+                  </a>
+                )}
+              </div>
+            );
+
+            return (
+              <motion.div
+                key={item.label}
+                {...fadeUpView(i * 0.08)}
+                className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm hover:shadow-md hover:-translate-y-0.5 transition-all duration-300"
+              >
+                {item.href && !item.wa ? (
+                  <a href={item.href} className="block">{inner}</a>
+                ) : (
+                  inner
+                )}
+              </motion.div>
+            );
+          })}
         </div>
       </section>
 
-      {/* Main Contact Section */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <div className="grid grid-cols-1 lg:grid-cols-2 gap-12 max-w-6xl mx-auto">
-            {/* Contact Form */}
-            <motion.div
-              initial={{ opacity: 0, x: -30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="bg-white rounded-3xl shadow-2xl p-8 md:p-12"
+      {/* ── DIVIDER ── */}
+      <div className="max-w-5xl mx-auto px-6">
+        <div className="h-px bg-gray-200" />
+      </div>
+
+      {/* ── FORM + ASIDE ── */}
+      <section className="py-16 px-6">
+        <div className="max-w-5xl mx-auto grid grid-cols-1 lg:grid-cols-5 gap-12">
+
+          {/* ─ FORM ─ */}
+          <motion.div {...fadeUpView(0)} className="lg:col-span-3">
+            <h2
+              className="text-2xl font-bold text-gray-900 mb-8"
+              style={{ fontFamily: "'Sora', sans-serif" }}
             >
-              <h2 className="text-3xl font-bold text-gray-900 mb-6">
-                Envoyez-moi un message
-              </h2>
+              Envoyer un message
+            </h2>
 
-              <form onSubmit={handleSubmit} className="space-y-6">
-                {/* Nom */}
+            <form onSubmit={handleSubmit} className="space-y-5">
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                  <label htmlFor="nom" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label htmlFor="nom" className="block text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">
                     Nom complet *
                   </label>
                   <input
-                    type="text"
-                    id="nom"
-                    name="nom"
-                    value={formData.nom}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-600 focus:outline-none transition-colors"
+                    type="text" id="nom" name="nom"
+                    value={formData.nom} onChange={handleChange} required
                     placeholder="Votre nom"
+                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-800 placeholder-gray-400 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition"
                   />
                 </div>
-
-                {/* Email */}
                 <div>
-                  <label htmlFor="email" className="block text-sm font-semibold text-gray-700 mb-2">
+                  <label htmlFor="email" className="block text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">
                     Email *
                   </label>
                   <input
-                    type="email"
-                    id="email"
-                    name="email"
-                    value={formData.email}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-600 focus:outline-none transition-colors"
+                    type="email" id="email" name="email"
+                    value={formData.email} onChange={handleChange} required
                     placeholder="votre@email.com"
+                    className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-800 placeholder-gray-400 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition"
                   />
                 </div>
+              </div>
 
-                {/* Objet */}
-                <div>
-                  <label htmlFor="objet" className="block text-sm font-semibold text-gray-700 mb-2">
-                    Objet *
-                  </label>
-                  <select
-                    id="objet"
-                    name="objet"
-                    value={formData.objet}
-                    onChange={handleChange}
-                    required
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-600 focus:outline-none transition-colors"
-                  >
-                    <option value="">Sélectionnez un objet</option>
-                    <option value="Site Web">Site Web</option>
-                    <option value="Stratégie Digitale">Stratégie Digitale</option>
-                    <option value="Design Graphique">Design Graphique</option>
-                    <option value="SEO">SEO</option>
-                    <option value="Publicité">Publicité</option>
-                    <option value="CV & Lettre">CV & Lettre</option>
-                    <option value="Autre">Autre</option>
-                  </select>
-                </div>
+              <div>
+                <label htmlFor="objet" className="block text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">
+                  Objet *
+                </label>
+                <input
+                  type="text" id="objet" name="objet"
+                  value={formData.objet} onChange={handleChange} required
+                  placeholder="Ex : Création de site, collaboration, IziCard…"
+                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-800 placeholder-gray-400 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition"
+                />
+              </div>
 
-                {/* Message */}
-                <div>
-                  <label htmlFor="message" className="block text-sm font-semibold text-gray-700 mb-2">
-                    Message *
-                  </label>
-                  <textarea
-                    id="message"
-                    name="message"
-                    value={formData.message}
-                    onChange={handleChange}
-                    required
-                    rows={6}
-                    className="w-full px-4 py-3 border-2 border-gray-200 rounded-xl focus:border-blue-600 focus:outline-none transition-colors resize-none"
-                    placeholder="Décrivez votre projet ou posez votre question..."
-                  />
-                </div>
+              <div>
+                <label htmlFor="message" className="block text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">
+                  Message *
+                </label>
+                <textarea
+                  id="message" name="message"
+                  value={formData.message} onChange={handleChange} required
+                  rows={6}
+                  placeholder="Décrivez votre besoin ou posez votre question…"
+                  className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-800 placeholder-gray-400 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition resize-none"
+                />
+              </div>
 
-                {/* Submit Button */}
-                <button
-                  type="submit"
-                  disabled={isSubmitting}
-                  className="w-full px-8 py-4 bg-gradient-to-r from-blue-600 to-purple-600 text-white rounded-xl font-bold shadow-lg hover:shadow-xl transform hover:scale-105 transition-all duration-300 disabled:opacity-50 disabled:cursor-not-allowed flex items-center justify-center space-x-2"
+              <motion.button
+                type="submit"
+                disabled={isSubmitting}
+                whileHover={{ scale: 1.02 }}
+                whileTap={{ scale: 0.98 }}
+                className="inline-flex items-center gap-2 px-7 py-3.5 bg-gray-900 text-white rounded-xl text-sm font-semibold hover:bg-blue-600 transition-colors duration-200 disabled:opacity-50 disabled:cursor-not-allowed"
+              >
+                {isSubmitting ? (
+                  <span className="flex items-center gap-2">
+                    <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
+                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                    </svg>
+                    Envoi en cours…
+                  </span>
+                ) : (
+                  <>
+                    <FaPaperPlane className="text-xs" />
+                    Envoyer le message
+                  </>
+                )}
+              </motion.button>
+
+              {submitStatus === 'success' && (
+                <motion.p
+                  initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
+                  className="text-sm text-green-700 bg-green-50 border border-green-200 px-4 py-3 rounded-xl"
                 >
-                  {isSubmitting ? (
-                    <span>Envoi en cours...</span>
-                  ) : (
-                    <>
-                      <FaPaperPlane />
-                      <span>Envoyer le message</span>
-                    </>
-                  )}
-                </button>
-
-                {/* Status Messages */}
-                {submitStatus === 'success' && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="p-4 bg-green-100 border border-green-400 text-green-700 rounded-xl"
-                  >
-                    ✅ Message envoyé avec succès ! Je vous répondrai bientôt.
-                  </motion.div>
-                )}
-
-                {submitStatus === 'error' && (
-                  <motion.div
-                    initial={{ opacity: 0, y: -10 }}
-                    animate={{ opacity: 1, y: 0 }}
-                    className="p-4 bg-red-100 border border-red-400 text-red-700 rounded-xl"
-                  >
-                    ❌ Une erreur s'est produite. Veuillez réessayer ou me contacter directement par email.
-                  </motion.div>
-                )}
-              </form>
-            </motion.div>
-
-            {/* Additional Info */}
-            <motion.div
-              initial={{ opacity: 0, x: 30 }}
-              whileInView={{ opacity: 1, x: 0 }}
-              viewport={{ once: true }}
-              transition={{ duration: 0.6 }}
-              className="space-y-8"
-            >
-              {/* Why Contact Me */}
-              <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-lg p-8">
-                <h3 className="text-2xl font-bold text-gray-900 mb-6">
-                  Pourquoi me contacter ?
-                </h3>
-                <ul className="space-y-4">
-                  {[
-                    "Réponse garantie sous 24h",
-                    "Devis gratuit et personnalisé",
-                    "Conseil professionnel sans engagement",
-                    "Accompagnement de A à Z",
-                    "Tarifs transparents et compétitifs"
-                  ].map((item, index) => (
-                    <li key={index} className="flex items-start space-x-3">
-                      <span className="flex-shrink-0 w-6 h-6 bg-gradient-to-br from-blue-500 to-purple-600 rounded-full flex items-center justify-center text-white text-sm font-bold">
-                        ✓
-                      </span>
-                      <span className="text-gray-700">{item}</span>
-                    </li>
-                  ))}
-                </ul>
-              </div>
-
-              {/* Social Media */}
-              <div className="bg-gradient-to-br from-blue-600 via-purple-600 to-pink-600 rounded-3xl shadow-lg p-8 text-white">
-                <h3 className="text-2xl font-bold mb-6">
-                  Suivez-moi sur les réseaux sociaux
-                </h3>
-                <p className="mb-6 opacity-90">
-                  Restez connecté pour suivre mes projets, mes conseils et mes actualités !
-                </p>
-                <div className="flex space-x-4">
-                  {socialLinks.map((social) => {
-                    const Icon = social.icon;
-                    return (
-                      <motion.a
-                        key={social.name}
-                        href={social.href}
-                        target="_blank"
-                        rel="noopener noreferrer"
-                        whileHover={{ scale: 1.2, y: -5 }}
-                        className="w-12 h-12 bg-white/20 backdrop-blur-sm rounded-full flex items-center justify-center hover:bg-white hover:text-blue-600 transition-all duration-300"
-                        aria-label={social.name}
-                      >
-                        <Icon className="text-xl" />
-                      </motion.a>
-                    );
-                  })}
-                </div>
-              </div>
-
-              {/* Availability */}
-              <div className="bg-gradient-to-br from-white to-gray-50 rounded-3xl shadow-lg p-8">
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">
-                  Disponibilité
-                </h3>
-                <p className="text-gray-700 leading-relaxed">
-                  Je suis actuellement disponible pour de nouveaux projets. Que vous ayez besoin 
-                  d'un site web, d'une stratégie digitale ou de design, n'hésitez pas à me contacter 
-                  pour discuter de vos besoins !
-                </p>
-              </div>
-            </motion.div>
-          </div>
-        </div>
-      </section>
-
-      {/* FAQ Section */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Questions Fréquentes
-            </h2>
+                  ✓ Message envoyé ! Je vous répondrai dès que possible.
+                </motion.p>
+              )}
+              {submitStatus === 'error' && (
+                <motion.p
+                  initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
+                  className="text-sm text-red-700 bg-red-50 border border-red-200 px-4 py-3 rounded-xl"
+                >
+                  Une erreur est survenue. Écrivez-moi directement à{' '}
+                  <a href="mailto:poodasamuelpro@gmail.com" className="underline font-medium">
+                    poodasamuelpro@gmail.com
+                  </a>
+                </motion.p>
+              )}
+            </form>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 gap-8 max-w-5xl mx-auto">
-            {[
-              {
-                question: "Quels sont vos délais de réalisation ?",
-                answer: "Les délais varient selon le projet : comptez 1-2 semaines pour un site vitrine, 2-4 semaines pour un site e-commerce, et quelques jours pour du design graphique."
-              },
-              {
-                question: "Proposez-vous un suivi après livraison ?",
-                answer: "Oui, je propose un suivi et une maintenance continue pour tous mes projets web, avec différentes formules adaptées à vos besoins."
-              },
-              {
-                question: "Travaillez-vous avec des clients internationaux ?",
-                answer: "Absolument ! Je travaille avec des clients au Maroc et à l'international. Tous les échanges peuvent se faire en français ou en anglais."
-              },
-              {
-                question: "Comment se déroule le paiement ?",
-                answer: "Le paiement se fait généralement en 2 ou 3 fois : acompte au démarrage, paiement intermédiaire et solde à la livraison. Les modalités sont flexibles."
-              }
-            ].map((faq, index) => (
-              <motion.div
-                key={index}
-                initial={{ opacity: 0, y: 20 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="bg-gradient-to-br from-white to-gray-50 p-6 rounded-2xl shadow-lg"
-              >
-                <h3 className="text-lg font-bold text-gray-900 mb-3">{faq.question}</h3>
-                <p className="text-gray-600 leading-relaxed">{faq.answer}</p>
-              </motion.div>
-            ))}
-          </div>
+          {/* ─ ASIDE ─ */}
+          <motion.aside {...fadeUpView(0.1)} className="lg:col-span-2 space-y-6">
+
+            {/* Attentes */}
+            <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+              <h3 className="text-base font-bold text-gray-900 mb-5" style={{ fontFamily: "'Sora', sans-serif" }}>
+                Ce que vous pouvez attendre
+              </h3>
+              <ul className="space-y-4">
+                {[
+                  ['Réponse sous 24–48h', 'Je lis mes messages régulièrement.'],
+                  ['Échanges en français', 'Ou en anglais selon vos préférences.'],
+                  ['Honnêteté avant tout', 'Si je ne peux pas aider, je le dirai.'],
+                  ['Tarifs accessibles', 'Cohérents avec la qualité du travail fourni.'],
+                ].map(([title, desc], i) => (
+                  <motion.li
+                    key={title}
+                    initial={{ opacity: 0, x: 10 }}
+                    whileInView={{ opacity: 1, x: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.4, delay: i * 0.07 }}
+                    className="flex gap-3 list-none"
+                  >
+                    <span className="mt-0.5 flex-shrink-0 w-5 h-5 rounded-full bg-blue-50 flex items-center justify-center">
+                      <span className="block w-1.5 h-1.5 rounded-full bg-blue-500" />
+                    </span>
+                    <div>
+                      <p className="text-sm font-semibold text-gray-800">{title}</p>
+                      <p className="text-xs text-gray-400 mt-0.5">{desc}</p>
+                    </div>
+                  </motion.li>
+                ))}
+              </ul>
+            </div>
+
+            {/* Réseaux */}
+            <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
+              <h3 className="text-base font-bold text-gray-900 mb-1" style={{ fontFamily: "'Sora', sans-serif" }}>
+                Réseaux sociaux
+              </h3>
+              <p className="text-xs text-gray-400 mb-5">Projets, réflexions et actualités.</p>
+              <div className="flex gap-3">
+                {socialLinks.map(({ name, icon: Icon, href }, i) => (
+                  <motion.a
+                    key={name}
+                    href={href}
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    aria-label={name}
+                    initial={{ opacity: 0, scale: 0.8 }}
+                    whileInView={{ opacity: 1, scale: 1 }}
+                    viewport={{ once: true }}
+                    transition={{ duration: 0.3, delay: i * 0.07 }}
+                    whileHover={{ scale: 1.12, y: -2 }}
+                    className="w-11 h-11 rounded-xl border border-gray-200 bg-gray-50 flex items-center justify-center text-gray-500 hover:border-blue-400 hover:text-blue-600 hover:bg-blue-50 transition-colors duration-200"
+                  >
+                    <Icon className="text-base" />
+                  </motion.a>
+                ))}
+              </div>
+            </div>
+
+            {/* Disponibilité */}
+            <div className="bg-gray-900 rounded-2xl p-6 text-white">
+              <div className="flex items-center gap-2 mb-3">
+                <span className="block w-2 h-2 rounded-full bg-green-400 animate-pulse" />
+                <span className="text-[11px] font-bold uppercase tracking-wider text-gray-400">
+                  Disponible
+                </span>
+              </div>
+              <p className="text-sm leading-relaxed text-gray-300">
+                Ouvert aux projets ponctuels, collaborations et missions freelance.
+                N'hésitez pas à me soumettre votre idée.
+              </p>
+            </div>
+
+          </motion.aside>
         </div>
       </section>
-    </div>
+
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap');
+      `}</style>
+    </main>
   );
 }
