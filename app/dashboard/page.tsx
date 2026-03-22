@@ -1,6 +1,6 @@
 "use client";
 
-// app/dashboard/page.tsx
+// app/dashboard/page.tsx 
 //
 // Page privée accessible uniquement via le lien dans l'email
 // Protégée par un mot de passe simple côté client
