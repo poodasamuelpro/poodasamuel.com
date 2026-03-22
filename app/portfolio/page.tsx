@@ -46,10 +46,10 @@ const PROJECTS = [
     icon: FaRocket,
     accent: 'bg-blue-50 text-blue-600',
     title: 'IziCard Ouaga',
-    desc: 'Solution NFC burkinabè de cartes de visite connectées et bracelets intelligents. Un tap suffit pour partager ses informations — sans application à télécharger pour le destinataire.',
+    desc: 'IziCare est le produit phare d\'IziCard — un bracelet NFC intelligent qui stocke vos informations médicales essentielles. En cas d\'urgence, un simple tap suffit pour y accéder instantanément, sans application. Une solution pensée pour l\'Afrique de l\'Ouest, portée et développée depuis le Burkina Faso.',
     image: '/images/izicard-logo.png',
     imageContain: true,
-    tags: ['NFC', 'Innovation', 'Burkina Faso', 'Mobile'],
+    tags: ['IziCare', 'NFC', 'Santé', 'Burkina Faso', 'Innovation'],
     url: 'https://izicardouaga.com',
     urlLabel: 'izicardouaga.com',
   },
@@ -60,7 +60,7 @@ const PROJECTS = [
     icon: FaCode,
     accent: 'bg-green-50 text-green-600',
     title: 'SantéBF',
-    desc: 'Dossier Patient Informatisé National pour le Burkina Faso — plateforme à vocation sociale pour digitaliser le suivi médical. Application web + applications mobiles dédiées aux patients et professionnels de santé.',
+    desc: 'Dossier Patient Informatisé National pour le Burkina Faso — plateforme à vocation sociale pour digitaliser le suivi médical. Application web + applications mobiles dédiées aux patients et aux professionnels de santé.',
     image: '/images/izicard-logo.png',
     imageContain: true,
     tags: ['Santé', 'Digital', 'Burkina Faso', 'Social'],
@@ -181,19 +181,24 @@ const PROJECTS = [
   },
 ];
 
-// ── Galerie design — 10 placeholders ─────────────────────────────────────────
+// ── Galerie design — 15 slots ─────────────────────────────────────────────────
 
 const DESIGN_GALLERY = [
   { label: 'Affiche Welcome to Morocco', image: '/images/welcome-morocco.png' },
   { label: 'Identité visuelle IziCard', image: '/images/izicard-logo.png' },
   { label: 'Charte graphique SmartCard', image: '/images/smartcard-logo.png' },
-  { label: 'L\'envers du décor', image: '/images/envers-decor.jpg' },
+  { label: "L'envers du décor", image: '/images/envers-decor.jpg' },
   { label: 'Logo Collectif Leaders Unis', image: '/images/collectif-logo.png' },
   { label: 'Création graphique 6', image: null },
   { label: 'Création graphique 7', image: null },
   { label: 'Création graphique 8', image: null },
   { label: 'Création graphique 9', image: null },
   { label: 'Création graphique 10', image: null },
+  { label: 'Création graphique 11', image: null },
+  { label: 'Création graphique 12', image: null },
+  { label: 'Création graphique 13', image: null },
+  { label: 'Création graphique 14', image: null },
+  { label: 'Création graphique 15', image: null },
 ];
 
 // ── Composant ─────────────────────────────────────────────────────────────────
@@ -201,25 +206,21 @@ const DESIGN_GALLERY = [
 export default function PortfolioPage() {
   const [activeCategory, setActiveCategory] = useState('all');
   const [carouselIndex, setCarouselIndex] = useState(0);
-  const [direction, setDirection] = useState(1);
 
-  const visibleCount = 4; // nombre de slides visibles dans le carrousel
+  const visibleCount = 4;
   const maxIndex = Math.max(0, DESIGN_GALLERY.length - visibleCount);
 
   const prev = useCallback(() => {
-    setDirection(-1);
     setCarouselIndex((i) => Math.max(0, i - 1));
   }, []);
 
   const next = useCallback(() => {
-    setDirection(1);
     setCarouselIndex((i) => Math.min(maxIndex, i + 1));
   }, [maxIndex]);
 
-  // Auto-play carrousel
+  // Auto-play
   useEffect(() => {
     const timer = setInterval(() => {
-      setDirection(1);
       setCarouselIndex((i) => (i >= maxIndex ? 0 : i + 1));
     }, 3000);
     return () => clearInterval(timer);
@@ -352,7 +353,7 @@ export default function PortfolioPage() {
                       </div>
 
                       {/* Lien */}
-                      {project.url ? (
+                      {project.url && (
                         <a
                           href={project.url}
                           target="_blank"
@@ -362,8 +363,6 @@ export default function PortfolioPage() {
                           <FaExternalLinkAlt className="text-[10px]" />
                           {project.urlLabel}
                         </a>
-                      ) : (
-                        <span className="text-xs text-gray-300 italic">Projet personnel</span>
                       )}
                     </div>
                   </motion.div>
@@ -380,7 +379,7 @@ export default function PortfolioPage() {
         </div>
       </section>
 
-      {/* ══ GALERIE DESIGN — CARROUSEL ANIMÉ ══ */}
+      {/* ══ GALERIE DESIGN — CARROUSEL 15 SLOTS ══ */}
       <section className="py-16 px-5 sm:px-8 bg-white">
         <div className="max-w-6xl mx-auto">
           <motion.div {...fadeUp(0)} className="mb-8">
@@ -400,80 +399,75 @@ export default function PortfolioPage() {
           </motion.div>
 
           {/* Carrousel */}
-          <div className="relative">
-            {/* Slides */}
-            <div className="overflow-hidden">
-              <motion.div
-                animate={{ x: `calc(-${carouselIndex * (100 / visibleCount)}%)` }}
-                transition={{ type: 'spring', stiffness: 300, damping: 30 }}
-                className="flex gap-4"
-                style={{ width: `${(DESIGN_GALLERY.length / visibleCount) * 100}%` }}
-              >
-                {DESIGN_GALLERY.map((item, i) => (
-                  <motion.div
-                    key={i}
-                    initial={{ opacity: 0, scale: 0.95 }}
-                    whileInView={{ opacity: 1, scale: 1 }}
-                    viewport={{ once: true }}
-                    transition={{ delay: i * 0.04 }}
-                    className="flex-shrink-0 rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300 hover:-translate-y-1"
-                    style={{ width: `calc(${100 / DESIGN_GALLERY.length * visibleCount}% - 12px)` }}
-                  >
-                    {item.image ? (
-                      <div className="relative aspect-square bg-gray-50">
-                        <Image
-                          src={item.image}
-                          alt={item.label}
-                          fill
-                          className="object-contain p-6 hover:scale-105 transition-transform duration-300"
-                        />
-                        <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/40 to-transparent p-3">
-                          <p className="text-white text-[11px] font-semibold truncate">{item.label}</p>
-                        </div>
+          <div className="relative overflow-hidden">
+            <motion.div
+              animate={{ x: `calc(-${carouselIndex * (100 / visibleCount)}%)` }}
+              transition={{ type: 'spring', stiffness: 300, damping: 30 }}
+              className="flex gap-4"
+              style={{ width: `${(DESIGN_GALLERY.length / visibleCount) * 100}%` }}
+            >
+              {DESIGN_GALLERY.map((item, i) => (
+                <motion.div
+                  key={i}
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  whileInView={{ opacity: 1, scale: 1 }}
+                  viewport={{ once: true }}
+                  transition={{ delay: i * 0.03 }}
+                  whileHover={{ y: -4, scale: 1.02 }}
+                  className="flex-shrink-0 rounded-2xl overflow-hidden border border-gray-100 shadow-sm hover:shadow-md transition-all duration-300"
+                  style={{ width: `calc(${(100 / DESIGN_GALLERY.length) * visibleCount}% - 12px)` }}
+                >
+                  {item.image ? (
+                    <div className="relative aspect-square bg-gray-50">
+                      <Image
+                        src={item.image}
+                        alt={item.label}
+                        fill
+                        className="object-contain p-6 hover:scale-105 transition-transform duration-300"
+                      />
+                      <div className="absolute bottom-0 left-0 right-0 bg-gradient-to-t from-black/50 to-transparent p-3">
+                        <p className="text-white text-[11px] font-semibold truncate">{item.label}</p>
                       </div>
-                    ) : (
-                      <div className="aspect-square bg-gray-50 border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-2 p-4">
-                        <FaImage className="text-gray-300 text-2xl" />
-                        <p className="text-[10px] text-gray-400 text-center leading-snug">{item.label}</p>
-                      </div>
-                    )}
-                  </motion.div>
-                ))}
-              </motion.div>
+                    </div>
+                  ) : (
+                    <div className="aspect-square bg-gray-50 border-2 border-dashed border-gray-200 flex flex-col items-center justify-center gap-2 p-4">
+                      <FaImage className="text-gray-300 text-2xl" />
+                      <p className="text-[10px] text-gray-400 text-center leading-snug">{item.label}</p>
+                    </div>
+                  )}
+                </motion.div>
+              ))}
+            </motion.div>
+          </div>
+
+          {/* Contrôles */}
+          <div className="flex items-center justify-between mt-5">
+            <div className="flex gap-1.5 flex-wrap">
+              {Array.from({ length: maxIndex + 1 }).map((_, i) => (
+                <button
+                  key={i}
+                  onClick={() => setCarouselIndex(i)}
+                  className={`h-1.5 rounded-full transition-all duration-300 ${
+                    i === carouselIndex ? 'w-6 bg-blue-600' : 'w-1.5 bg-gray-300'
+                  }`}
+                />
+              ))}
             </div>
-
-            {/* Contrôles */}
-            <div className="flex items-center justify-between mt-5">
-              {/* Dots */}
-              <div className="flex gap-1.5">
-                {Array.from({ length: maxIndex + 1 }).map((_, i) => (
-                  <button
-                    key={i}
-                    onClick={() => { setDirection(i > carouselIndex ? 1 : -1); setCarouselIndex(i); }}
-                    className={`h-1.5 rounded-full transition-all duration-300 ${
-                      i === carouselIndex ? 'w-6 bg-blue-600' : 'w-1.5 bg-gray-300'
-                    }`}
-                  />
-                ))}
-              </div>
-
-              {/* Flèches */}
-              <div className="flex gap-2">
-                <button
-                  onClick={prev}
-                  disabled={carouselIndex === 0}
-                  className="w-10 h-10 flex items-center justify-center border border-gray-200 rounded-xl text-gray-500 hover:border-blue-400 hover:text-blue-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                >
-                  <FaChevronLeft className="text-xs" />
-                </button>
-                <button
-                  onClick={next}
-                  disabled={carouselIndex >= maxIndex}
-                  className="w-10 h-10 flex items-center justify-center border border-gray-200 rounded-xl text-gray-500 hover:border-blue-400 hover:text-blue-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
-                >
-                  <FaChevronRight className="text-xs" />
-                </button>
-              </div>
+            <div className="flex gap-2">
+              <button
+                onClick={prev}
+                disabled={carouselIndex === 0}
+                className="w-10 h-10 flex items-center justify-center border border-gray-200 rounded-xl text-gray-500 hover:border-blue-400 hover:text-blue-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              >
+                <FaChevronLeft className="text-xs" />
+              </button>
+              <button
+                onClick={next}
+                disabled={carouselIndex >= maxIndex}
+                className="w-10 h-10 flex items-center justify-center border border-gray-200 rounded-xl text-gray-500 hover:border-blue-400 hover:text-blue-600 disabled:opacity-30 disabled:cursor-not-allowed transition-colors"
+              >
+                <FaChevronRight className="text-xs" />
+              </button>
             </div>
           </div>
         </div>
