@@ -79,7 +79,6 @@ const SERVICES = [
       'Flyers et affiches',
       'Visuels pour réseaux sociaux',
       'Charte graphique complète',
-      'Montage vidéo court (CapCut)',
     ],
     accent: 'bg-pink-50 text-pink-600',
     border: 'border-pink-100',
