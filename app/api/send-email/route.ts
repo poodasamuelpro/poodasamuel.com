@@ -1,4 +1,4 @@
-// app/api/send-email/route.ts 
+// app/api/send-email/route.ts
 //
 // Appel direct à l'API Resend via fetch — sans import du SDK
 // Le SDK Resend v6 valide la clé dès l'import et plante le build
@@ -20,7 +20,6 @@ export async function POST(request: NextRequest) {
 
     const apiKey = process.env.RESEND_API_KEY;
 
-    // Si pas de clé configurée — on accepte quand même sans planter
     if (!apiKey) {
       console.warn('RESEND_API_KEY non configurée — email non envoyé');
       return NextResponse.json({ success: true, warning: 'Email non envoyé, clé API manquante.' });
@@ -33,7 +32,7 @@ export async function POST(request: NextRequest) {
         'Content-Type': 'application/json',
       },
       body: JSON.stringify({
-        from: 'Portfolio Contact <onboarding@resend.dev>',
+        from: 'Portfolio Contact <contact@poodasamuelpro.izicardouaga.com>',
         to: ['poodasamuelpro@gmail.com'],
         subject: objet ? `[Portfolio] ${objet}` : `[Portfolio] Nouveau message de ${nom}`,
         html: `
