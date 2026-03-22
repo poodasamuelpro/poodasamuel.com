@@ -44,7 +44,7 @@ const SERVICES = [
   {
     icon: FaGlobe,
     title: 'Création de sites web',
-    desc: 'Sites vitrines et portfolios modernes, responsifs et optimisés avec WordPress.',
+    desc: 'Sites vitrines et portfolios modernes, responsifs et optimisés.',
     accent: 'bg-indigo-50 text-indigo-600',
   },
   {
@@ -61,8 +61,8 @@ const SERVICES = [
   },
   {
     icon: FaMobileAlt,
-    title: 'Applications Android WebView',
-    desc: 'Développement d\'applications mobiles Android WebView — intégration de sites web en application native.',
+    title: 'Applications mobiles WebView',
+    desc: 'Développement d\'applications mobiles WebView — intégration de sites web en application mobile.',
     accent: 'bg-orange-50 text-orange-600',
   },
   {
@@ -88,7 +88,15 @@ const SKILLS = [
       'Audit',
       'Décision d\'investissement',
     ],
-    tools: ['Sage Comptabilité', 'Sage Paie', 'Excel (TCD, formules avancées, tableaux de bord)', 'Power BI', 'Word', 'PowerPoint'],
+    tools: [
+      'Sage Comptabilité',
+      'Sage Paie',
+      'Excel (TCD, formules avancées, tableaux de bord)',
+      'Power BI',
+      'Microsoft Access',
+      'Word',
+      'PowerPoint',
+    ],
   },
   {
     domain: 'Marketing & Digital',
@@ -100,10 +108,16 @@ const SKILLS = [
       'SEO on-page & off-page',
       'Design graphique',
       'Intégration & développement web',
-      'Community management',
       'Rédaction de contenu',
     ],
-    tools: ['WordPress', 'Elementor', 'Canva', 'CapCut', 'Google Search Console', 'SEMrush'],
+    tools: [
+      'WordPress',
+      'Elementor',
+      'Canva',
+      'CapCut',
+      'Google Search Console',
+      'SEMrush',
+    ],
   },
   {
     domain: 'Entrepreneuriat & Management',
@@ -117,7 +131,7 @@ const SKILLS = [
       'Communication',
       'Coordination d\'équipe',
     ],
-    tools: ['Microsoft Office', 'Notion', 'Trello'],
+    tools: ['Microsoft Office', 'Airtable'],
   },
 ];
 
@@ -128,7 +142,7 @@ const SOFTSKILLS = [
   },
   {
     group: 'Travail en équipe',
-    items: ['Collaboration efficace', 'Esprit d\'équipe', 'Flexibilité'],
+    items: ['Collaboration efficace', 'Esprit d\'équipe', 'Flexibilité', 'Adaptabilité'],
   },
   {
     group: 'Personnelles',
@@ -197,17 +211,19 @@ export default function HomePage() {
   return (
     <main className="overflow-hidden bg-[#fafaf9]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
 
-      {/* ══════════════════════════════════════════
-          1. HERO
-      ══════════════════════════════════════════ */}
+      {/* ══ 1. HERO ══ */}
       <section className="relative min-h-[92vh] flex items-center overflow-hidden">
 
-        {/* Blob background */}
+        {/* Blobs décoratifs */}
         <div aria-hidden className="absolute inset-0 pointer-events-none">
-          <div className="absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full opacity-20"
-            style={{ background: 'radial-gradient(circle, #3b82f6 0%, transparent 70%)' }} />
-          <div className="absolute -bottom-40 -right-40 w-[500px] h-[500px] rounded-full opacity-10"
-            style={{ background: 'radial-gradient(circle, #6366f1 0%, transparent 70%)' }} />
+          <div
+            className="absolute -top-40 -left-40 w-[600px] h-[600px] rounded-full opacity-20"
+            style={{ background: 'radial-gradient(circle, #3b82f6 0%, transparent 70%)' }}
+          />
+          <div
+            className="absolute -bottom-40 -right-40 w-[500px] h-[500px] rounded-full opacity-10"
+            style={{ background: 'radial-gradient(circle, #6366f1 0%, transparent 70%)' }}
+          />
         </div>
 
         <div className="relative max-w-6xl mx-auto px-5 sm:px-8 w-full py-20">
@@ -235,7 +251,10 @@ export default function HomePage() {
                 {...fadeUpHero(0.16)}
                 className="text-lg text-gray-500 leading-relaxed max-w-lg"
               >
-                Étudiant en <strong className="text-gray-700">Finance & Comptabilité</strong>, passionné par la finance, la comptabilité, le digital et l'entrepreneuriat. Découvrez mes compétences, projets et ma vision.
+                Étudiant en{' '}
+                <strong className="text-gray-700">Finance & Comptabilité</strong>,
+                passionné par la finance, la comptabilité, le digital et l'entrepreneuriat.
+                Découvrez mes compétences, projets et ma vision.
               </motion.p>
 
               <motion.div
@@ -261,23 +280,24 @@ export default function HomePage() {
               </motion.div>
             </div>
 
-            {/* Photo */}
+            {/* Photo — bien positionnée à droite, centrée verticalement */}
             <motion.div
-              initial={{ opacity: 0, scale: 0.9 }}
+              initial={{ opacity: 0, scale: 0.92 }}
               animate={{ opacity: 1, scale: 1 }}
               transition={{ duration: 0.7, delay: 0.2 }}
-              className="relative flex justify-center lg:justify-end"
+              className="flex justify-center lg:justify-end"
             >
-              <div className="relative w-72 h-72 sm:w-80 sm:h-80 lg:w-96 lg:h-96">
-                {/* Ring décoratif */}
+              <div className="relative w-72 h-72 sm:w-80 sm:h-80 lg:w-[400px] lg:h-[400px]">
+                {/* Anneaux décoratifs derrière la photo */}
                 <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-200 to-indigo-200 rotate-6 scale-105 opacity-40" />
-                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-100 to-purple-100 -rotate-3 scale-102 opacity-30" />
-                <div className="relative rounded-3xl overflow-hidden shadow-2xl ring-4 ring-white">
+                <div className="absolute inset-0 rounded-3xl bg-gradient-to-br from-blue-100 to-purple-100 -rotate-3 scale-105 opacity-30" />
+                {/* Photo principale */}
+                <div className="relative w-full h-full rounded-3xl overflow-hidden shadow-2xl ring-4 ring-white">
                   <Image
                     src="/images/pooda-photo.jpg"
                     alt="Pooda Samuel"
                     fill
-                    className="object-cover"
+                    className="object-cover object-top"
                     priority
                   />
                 </div>
@@ -305,9 +325,7 @@ export default function HomePage() {
         </motion.div>
       </section>
 
-      {/* ══════════════════════════════════════════
-          2. CHIFFRES RAPIDES
-      ══════════════════════════════════════════ */}
+      {/* ══ 2. CHIFFRES RAPIDES ══ */}
       <section className="py-12 border-y border-gray-100 bg-white">
         <div className="max-w-6xl mx-auto px-5 sm:px-8">
           <div className="grid grid-cols-2 lg:grid-cols-4 gap-6">
@@ -317,7 +335,10 @@ export default function HomePage() {
                 {...fadeUp(i * 0.08)}
                 className="text-center space-y-1"
               >
-                <p className="text-2xl font-bold text-gray-900" style={{ fontFamily: "'Sora', sans-serif" }}>
+                <p
+                  className="text-2xl font-bold text-gray-900"
+                  style={{ fontFamily: "'Sora', sans-serif" }}
+                >
                   {s.value}
                 </p>
                 <p className="text-xs text-gray-500 leading-snug">{s.label}</p>
@@ -327,19 +348,18 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════
-          3. QUI SUIS-JE
-      ══════════════════════════════════════════ */}
+      {/* ══ 3. QUI SUIS-JE ══ */}
       <section className="py-20 px-5 sm:px-8">
         <div className="max-w-6xl mx-auto grid grid-cols-1 lg:grid-cols-2 gap-16 items-center">
 
-          <motion.div {...fadeUp(0)}>
+          <motion.div {...fadeUp(0)} className="relative">
+            <div className="absolute -inset-2 rounded-2xl bg-blue-50 -rotate-1 opacity-60" />
             <Image
               src="/images/profile.png"
               alt="Pooda Samuel profil"
               width={500}
               height={500}
-              className="rounded-2xl shadow-lg w-full object-cover"
+              className="relative rounded-2xl shadow-lg w-full object-cover"
             />
           </motion.div>
 
@@ -370,13 +390,10 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════
-          4. CE QUE JE PEUX APPORTER
-      ══════════════════════════════════════════ */}
+      {/* ══ 4. SERVICES ══ */}
       <section className="py-20 px-5 sm:px-8 bg-white">
         <div className="max-w-6xl mx-auto">
-
-          <motion.div {...fadeUp(0)} className="mb-4">
+          <motion.div {...fadeUp(0)} className="mb-10">
             <p className="text-xs font-bold tracking-[0.2em] uppercase text-blue-500 mb-3">
               Services
             </p>
@@ -391,7 +408,7 @@ export default function HomePage() {
             </p>
           </motion.div>
 
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5 mt-10">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
             {SERVICES.map((s, i) => {
               const Icon = s.icon;
               return (
@@ -413,12 +430,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════
-          5. COMPÉTENCES PAR DOMAINE
-      ══════════════════════════════════════════ */}
+      {/* ══ 5. COMPÉTENCES PAR DOMAINE ══ */}
       <section className="py-20 px-5 sm:px-8">
         <div className="max-w-6xl mx-auto">
-
           <motion.div {...fadeUp(0)} className="mb-10">
             <p className="text-xs font-bold tracking-[0.2em] uppercase text-blue-500 mb-3">
               Compétences
@@ -478,12 +492,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════
-          6. SOFT SKILLS
-      ══════════════════════════════════════════ */}
+      {/* ══ 6. SOFT SKILLS ══ */}
       <section className="py-20 px-5 sm:px-8 bg-white">
         <div className="max-w-6xl mx-auto">
-
           <motion.div {...fadeUp(0)} className="mb-10">
             <p className="text-xs font-bold tracking-[0.2em] uppercase text-blue-500 mb-3">
               Soft Skills
@@ -518,13 +529,13 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════
-          7. PROJETS EN VEDETTE — CARROUSEL
-      ══════════════════════════════════════════ */}
+      {/* ══ 7. PROJETS — CARROUSEL ══ */}
       <section className="py-20 px-5 sm:px-8">
         <div className="max-w-6xl mx-auto">
-
-          <motion.div {...fadeUp(0)} className="flex items-end justify-between mb-10">
+          <motion.div
+            {...fadeUp(0)}
+            className="flex items-end justify-between mb-10"
+          >
             <div>
               <p className="text-xs font-bold tracking-[0.2em] uppercase text-blue-500 mb-3">
                 Portfolio
@@ -544,7 +555,6 @@ export default function HomePage() {
             </Link>
           </motion.div>
 
-          {/* Carrousel */}
           <div className="relative">
             <motion.div
               key={currentProject}
@@ -553,7 +563,6 @@ export default function HomePage() {
               transition={{ duration: 0.4 }}
               className="grid grid-cols-1 lg:grid-cols-2 gap-8 items-center bg-white border border-gray-100 rounded-2xl p-6 sm:p-8 shadow-sm"
             >
-              {/* Image */}
               <div className="relative h-64 sm:h-80 rounded-xl overflow-hidden bg-gray-50">
                 <Image
                   src={PROJECTS[currentProject].image}
@@ -563,7 +572,6 @@ export default function HomePage() {
                 />
               </div>
 
-              {/* Texte */}
               <div className="space-y-4">
                 <span className="text-[11px] font-bold uppercase tracking-wider text-blue-500 bg-blue-50 px-3 py-1 rounded-full">
                   {PROJECTS[currentProject].tag}
@@ -586,7 +594,6 @@ export default function HomePage() {
               </div>
             </motion.div>
 
-            {/* Contrôles */}
             <div className="flex items-center justify-between mt-5">
               <div className="flex gap-2">
                 {PROJECTS.map((_, i) => (
@@ -618,12 +625,9 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════
-          8. TÉMOIGNAGES
-      ══════════════════════════════════════════ */}
+      {/* ══ 8. TÉMOIGNAGES ══ */}
       <section className="py-20 px-5 sm:px-8 bg-white">
         <div className="max-w-6xl mx-auto">
-
           <motion.div {...fadeUp(0)} className="mb-10">
             <p className="text-xs font-bold tracking-[0.2em] uppercase text-blue-500 mb-3">
               Témoignages
@@ -666,9 +670,7 @@ export default function HomePage() {
         </div>
       </section>
 
-      {/* ══════════════════════════════════════════
-          9. CTA FINAL
-      ══════════════════════════════════════════ */}
+      {/* ══ 9. CTA FINAL ══ */}
       <section className="py-20 px-5 sm:px-8">
         <div className="max-w-3xl mx-auto">
           <motion.div
