@@ -6,7 +6,6 @@ import { SpeedInsights } from '@vercel/speed-insights/next';
 import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
-// DM Sans remplace Inter — cohérent avec le design des composants
 const dmSans = DM_Sans({ subsets: ['latin'], weight: ['400', '500', '600'] });
 
 export const metadata: Metadata = {
@@ -16,7 +15,7 @@ export const metadata: Metadata = {
     template: '%s | Pooda Samuel',
   },
   description:
-    'Portfolio de Pooda Samuel — Étudiant en Finance & Comptabilité à l\'ESMC Business School Casablanca. Compétences en analyse financière, comptabilité, digital et entrepreneuriat.',
+    "Portfolio de Pooda Samuel — Étudiant en Finance & Comptabilité à l'ESMC Business School Casablanca. Compétences en analyse financière, comptabilité, digital et entrepreneuriat.",
   keywords: [
     'Pooda Samuel',
     'Samuel Pooda',
@@ -50,7 +49,7 @@ export const metadata: Metadata = {
     siteName: 'Pooda Samuel Portfolio',
     images: [
       {
-        url: '/images/profile.png',
+        url: '/images/pooda-photo.jpg',
         width: 1200,
         height: 630,
         alt: 'Pooda Samuel — Portfolio',
@@ -61,7 +60,7 @@ export const metadata: Metadata = {
     card: 'summary_large_image',
     title: 'Pooda Samuel | Finance & Digital',
     description: 'Portfolio étudiant — Finance, Comptabilité, Digital et Entrepreneuriat.',
-    images: ['/images/profile.png'],
+    images: ['/images/pooda-photo.jpg'],
   },
   robots: {
     index: true,
@@ -89,7 +88,6 @@ export default function RootLayout({
       </head>
       <body className={`${dmSans.className} antialiased bg-[#fafaf9]`}>
         <Navbar />
-        {/* Pas de pt-20 — le Navbar inclut déjà son spacer h-[68px] */}
         {children}
         <Footer />
         <Analytics />
