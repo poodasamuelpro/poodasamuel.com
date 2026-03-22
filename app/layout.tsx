@@ -1,36 +1,40 @@
 import type { Metadata } from 'next';
-import { Inter } from 'next/font/google';
+import { DM_Sans } from 'next/font/google';
 import './globals.css';
 import { Analytics } from '@vercel/analytics/react';
 import { SpeedInsights } from '@vercel/speed-insights/next';
-import Header from '@/components/Header';
+import Navbar from '@/components/Navbar';
 import Footer from '@/components/Footer';
 
-const inter = Inter({ subsets: ['latin'] });
+// DM Sans remplace Inter — cohérent avec le design des composants
+const dmSans = DM_Sans({ subsets: ['latin'], weight: ['400', '500', '600'] });
 
 export const metadata: Metadata = {
-  metadataBase: new URL('https://poodasamuel.com'),
+  metadataBase: new URL('https://poodasamuel.vercel.app'),
   title: {
-    default: 'Samuel POODA | Étudiant Finance & Digital - Portfolio',
-    template: '%s | Samuel POODA'
+    default: 'Pooda Samuel | Finance, Comptabilité & Digital — Portfolio',
+    template: '%s | Pooda Samuel',
   },
-  description: 'Étudiant en Finance et Comptabilité à l\'ESMC Business School Casablanca. Découvrez mes compétences en WordPress, design graphique, SEO et stratégie digitale.',
+  description:
+    'Portfolio de Pooda Samuel — Étudiant en Finance & Comptabilité à l\'ESMC Business School Casablanca. Compétences en analyse financière, comptabilité, digital et entrepreneuriat.',
   keywords: [
-    'Samuel POODA',
-    'Étudiant Finance',
+    'Pooda Samuel',
+    'Samuel Pooda',
+    'Finance Comptabilité',
     'ESMC Casablanca',
-    'Portfolio Étudiant',
-    'WordPress',
-    'Design Graphique',
+    'Portfolio étudiant',
+    'Analyse financière',
+    'Comptabilité',
+    'Marketing digital',
     'SEO',
-    'Marketing Digital',
-    'Transformation Digitale',
+    'IziCard',
+    'Burkina Faso',
     'Casablanca',
-    'Maroc'
+    'Maroc',
   ],
-  authors: [{ name: 'Samuel POODA' }],
-  creator: 'Samuel POODA',
-  publisher: 'Samuel POODA',
+  authors: [{ name: 'Pooda Samuel' }],
+  creator: 'Pooda Samuel',
+  publisher: 'Pooda Samuel',
   formatDetection: {
     email: false,
     address: false,
@@ -39,15 +43,25 @@ export const metadata: Metadata = {
   openGraph: {
     type: 'website',
     locale: 'fr_FR',
-    url: 'https://poodasamuel.com',
-    title: 'Samuel POODA | Étudiant Finance & Digital',
-    description: 'Portfolio étudiant - Finance, Digital, WordPress et Design',
-    siteName: 'Samuel POODA Portfolio',
+    url: 'https://poodasamuel.vercel.app',
+    title: 'Pooda Samuel | Finance, Comptabilité & Digital',
+    description:
+      'Portfolio étudiant — Finance, Comptabilité, Digital et Entrepreneuriat.',
+    siteName: 'Pooda Samuel Portfolio',
+    images: [
+      {
+        url: '/images/profile.png',
+        width: 1200,
+        height: 630,
+        alt: 'Pooda Samuel — Portfolio',
+      },
+    ],
   },
   twitter: {
     card: 'summary_large_image',
-    title: 'Samuel POODA | Étudiant Finance & Digital',
-    description: 'Portfolio étudiant - Finance, Digital, WordPress et Design',
+    title: 'Pooda Samuel | Finance & Digital',
+    description: 'Portfolio étudiant — Finance, Comptabilité, Digital et Entrepreneuriat.',
+    images: ['/images/profile.png'],
   },
   robots: {
     index: true,
@@ -70,14 +84,13 @@ export default function RootLayout({
   return (
     <html lang="fr" className="scroll-smooth">
       <head>
-        <link rel="canonical" href="https://poodasamuel.com" />
-        <meta name="theme-color" content="#1e40af" />
+        <link rel="canonical" href="https://poodasamuel.vercel.app" />
+        <meta name="theme-color" content="#1d4ed8" />
       </head>
-      <body className={`${inter.className} antialiased`}>
-        <Header />
-        <main className="min-h-screen pt-20">
-          {children}
-        </main>
+      <body className={`${dmSans.className} antialiased bg-[#fafaf9]`}>
+        <Navbar />
+        {/* Pas de pt-20 — le Navbar inclut déjà son spacer h-[68px] */}
+        {children}
         <Footer />
         <Analytics />
         <SpeedInsights />
