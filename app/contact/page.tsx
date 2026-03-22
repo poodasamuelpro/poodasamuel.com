@@ -16,14 +16,14 @@ import {
 const fadeUp = (delay = 0) => ({
   initial: { opacity: 0, y: 20 },
   animate: { opacity: 1, y: 0 },
-  transition: { duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] },
+  transition: { duration: 0.55, delay },
 });
 
 const fadeUpView = (delay = 0) => ({
   initial: { opacity: 0, y: 20 },
   whileInView: { opacity: 1, y: 0 },
   viewport: { once: true },
-  transition: { duration: 0.55, delay, ease: [0.22, 1, 0.36, 1] },
+  transition: { duration: 0.55, delay },
 });
 
 export default function ContactPage() {
@@ -122,7 +122,10 @@ export default function ContactPage() {
           }}
         />
         <div className="max-w-3xl mx-auto">
-          <motion.p {...fadeUp(0)} className="text-xs font-bold tracking-[0.18em] text-blue-500 uppercase mb-4">
+          <motion.p
+            {...fadeUp(0)}
+            className="text-xs font-bold tracking-[0.18em] text-blue-500 uppercase mb-4"
+          >
             Contact
           </motion.p>
           <motion.h1
@@ -132,7 +135,10 @@ export default function ContactPage() {
           >
             Échangeons ensemble
           </motion.h1>
-          <motion.p {...fadeUp(0.14)} className="text-gray-500 text-lg leading-relaxed max-w-xl">
+          <motion.p
+            {...fadeUp(0.14)}
+            className="text-gray-500 text-lg leading-relaxed max-w-xl"
+          >
             Une question, une idée de collaboration ou simplement envie d'échanger ?
             Je lis chaque message avec attention et vous réponds dans les meilleurs délais.
           </motion.p>
@@ -152,7 +158,9 @@ export default function ContactPage() {
                 <p className="text-[11px] font-bold tracking-wider uppercase text-gray-400">
                   {item.label}
                 </p>
-                <p className="text-sm font-semibold text-gray-800 leading-snug">{item.value}</p>
+                <p className="text-sm font-semibold text-gray-800 leading-snug">
+                  {item.value}
+                </p>
                 <p className="text-xs text-gray-400">{item.sub}</p>
                 {item.wa && (
                   <a
@@ -207,23 +215,37 @@ export default function ContactPage() {
             <form onSubmit={handleSubmit} className="space-y-5">
               <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
                 <div>
-                  <label htmlFor="nom" className="block text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">
+                  <label
+                    htmlFor="nom"
+                    className="block text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-1.5"
+                  >
                     Nom complet *
                   </label>
                   <input
-                    type="text" id="nom" name="nom"
-                    value={formData.nom} onChange={handleChange} required
+                    type="text"
+                    id="nom"
+                    name="nom"
+                    value={formData.nom}
+                    onChange={handleChange}
+                    required
                     placeholder="Votre nom"
                     className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-800 placeholder-gray-400 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition"
                   />
                 </div>
                 <div>
-                  <label htmlFor="email" className="block text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">
+                  <label
+                    htmlFor="email"
+                    className="block text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-1.5"
+                  >
                     Email *
                   </label>
                   <input
-                    type="email" id="email" name="email"
-                    value={formData.email} onChange={handleChange} required
+                    type="email"
+                    id="email"
+                    name="email"
+                    value={formData.email}
+                    onChange={handleChange}
+                    required
                     placeholder="votre@email.com"
                     className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-800 placeholder-gray-400 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition"
                   />
@@ -231,24 +253,37 @@ export default function ContactPage() {
               </div>
 
               <div>
-                <label htmlFor="objet" className="block text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">
+                <label
+                  htmlFor="objet"
+                  className="block text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-1.5"
+                >
                   Objet *
                 </label>
                 <input
-                  type="text" id="objet" name="objet"
-                  value={formData.objet} onChange={handleChange} required
+                  type="text"
+                  id="objet"
+                  name="objet"
+                  value={formData.objet}
+                  onChange={handleChange}
+                  required
                   placeholder="Ex : Création de site, collaboration, IziCard…"
                   className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-800 placeholder-gray-400 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition"
                 />
               </div>
 
               <div>
-                <label htmlFor="message" className="block text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-1.5">
+                <label
+                  htmlFor="message"
+                  className="block text-[11px] font-bold uppercase tracking-wider text-gray-400 mb-1.5"
+                >
                   Message *
                 </label>
                 <textarea
-                  id="message" name="message"
-                  value={formData.message} onChange={handleChange} required
+                  id="message"
+                  name="message"
+                  value={formData.message}
+                  onChange={handleChange}
+                  required
                   rows={6}
                   placeholder="Décrivez votre besoin ou posez votre question…"
                   className="w-full px-4 py-3 bg-white border border-gray-200 rounded-xl text-gray-800 placeholder-gray-400 text-sm focus:outline-none focus:border-blue-400 focus:ring-2 focus:ring-blue-100 transition resize-none"
@@ -265,8 +300,17 @@ export default function ContactPage() {
                 {isSubmitting ? (
                   <span className="flex items-center gap-2">
                     <svg className="animate-spin w-4 h-4" fill="none" viewBox="0 0 24 24">
-                      <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                      <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
+                      <circle
+                        className="opacity-25"
+                        cx="12" cy="12" r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8v8z"
+                      />
                     </svg>
                     Envoi en cours…
                   </span>
@@ -280,7 +324,8 @@ export default function ContactPage() {
 
               {submitStatus === 'success' && (
                 <motion.p
-                  initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
                   className="text-sm text-green-700 bg-green-50 border border-green-200 px-4 py-3 rounded-xl"
                 >
                   ✓ Message envoyé ! Je vous répondrai dès que possible.
@@ -288,11 +333,15 @@ export default function ContactPage() {
               )}
               {submitStatus === 'error' && (
                 <motion.p
-                  initial={{ opacity: 0, y: -6 }} animate={{ opacity: 1, y: 0 }}
+                  initial={{ opacity: 0, y: -6 }}
+                  animate={{ opacity: 1, y: 0 }}
                   className="text-sm text-red-700 bg-red-50 border border-red-200 px-4 py-3 rounded-xl"
                 >
                   Une erreur est survenue. Écrivez-moi directement à{' '}
-                  <a href="mailto:poodasamuelpro@gmail.com" className="underline font-medium">
+                  <a
+                    href="mailto:poodasamuelpro@gmail.com"
+                    className="underline font-medium"
+                  >
                     poodasamuelpro@gmail.com
                   </a>
                 </motion.p>
@@ -301,11 +350,16 @@ export default function ContactPage() {
           </motion.div>
 
           {/* ─ ASIDE ─ */}
-          <motion.aside {...fadeUpView(0.1)} className="lg:col-span-2 space-y-6">
-
+          <motion.aside
+            {...fadeUpView(0.1)}
+            className="lg:col-span-2 space-y-6"
+          >
             {/* Attentes */}
             <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
-              <h3 className="text-base font-bold text-gray-900 mb-5" style={{ fontFamily: "'Sora', sans-serif" }}>
+              <h3
+                className="text-base font-bold text-gray-900 mb-5"
+                style={{ fontFamily: "'Sora', sans-serif" }}
+              >
                 Ce que vous pouvez attendre
               </h3>
               <ul className="space-y-4">
@@ -337,10 +391,15 @@ export default function ContactPage() {
 
             {/* Réseaux */}
             <div className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm">
-              <h3 className="text-base font-bold text-gray-900 mb-1" style={{ fontFamily: "'Sora', sans-serif" }}>
+              <h3
+                className="text-base font-bold text-gray-900 mb-1"
+                style={{ fontFamily: "'Sora', sans-serif" }}
+              >
                 Réseaux sociaux
               </h3>
-              <p className="text-xs text-gray-400 mb-5">Projets, réflexions et actualités.</p>
+              <p className="text-xs text-gray-400 mb-5">
+                Projets, réflexions et actualités.
+              </p>
               <div className="flex gap-3">
                 {socialLinks.map(({ name, icon: Icon, href }, i) => (
                   <motion.a
