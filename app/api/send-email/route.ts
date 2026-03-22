@@ -1,4 +1,4 @@
-// app/api/send-email/route.ts
+// app/api/send-email/route.ts 
 //
 // Appel direct à l'API Resend via fetch — sans import du SDK
 // Le SDK Resend v6 valide la clé dès l'import et plante le build
