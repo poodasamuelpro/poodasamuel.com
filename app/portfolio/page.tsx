@@ -46,7 +46,7 @@ const PROJECTS = [
     icon: FaRocket,
     accent: 'bg-blue-50 text-blue-600',
     title: 'IziCard Ouaga',
-    desc: 'IziCare est le produit phare d\'IziCard — un bracelet NFC intelligent qui stocke vos informations médicales essentielles. En cas d\'urgence, un simple tap suffit pour y accéder instantanément, sans application. Une solution pensée pour l\'Afrique de l\'Ouest, portée et développée depuis le Burkina Faso.',
+    desc: "IziCard Ouaga est une startup burkinabè spécialisée dans les solutions NFC intelligentes pour l'Afrique de l'Ouest. Son produit phare, IziCare, est un bracelet de santé qui permet d'accéder instantanément aux informations médicales essentielles du porteur en cas d'urgence — un simple tap, sans application à télécharger.",
     image: '/images/izicard-logo.png',
     imageContain: true,
     tags: ['IziCare', 'NFC', 'Santé', 'Burkina Faso', 'Innovation'],
