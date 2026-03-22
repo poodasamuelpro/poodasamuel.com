@@ -81,7 +81,7 @@ export default function RootLayout({
   children: React.ReactNode;
 }>) {
   return (
-    <html lang="fr" className="scroll-smooth">
+    <html lang="fr" translate="yes" className="scroll-smooth">
       <head>
         <link rel="canonical" href="https://poodasamuel.vercel.app" />
         <meta name="theme-color" content="#1d4ed8" />
