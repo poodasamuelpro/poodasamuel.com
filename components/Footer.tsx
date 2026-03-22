@@ -1,154 +1,195 @@
 "use client";
 
+// components/Footer.tsx
+
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { FaFacebook, FaInstagram, FaLinkedin, FaEnvelope, FaPhone, FaMapMarkerAlt } from 'react-icons/fa';
+import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
+
+const NAV_LINKS = [
+  { href: '/', label: 'Accueil' },
+  { href: '/about', label: 'À propos' },
+  { href: '/portfolio', label: 'Portfolio' },
+  { href: '/services', label: 'Services' },
+  { href: '/blog', label: 'Blog' },
+  { href: '/contact', label: 'Contact' },
+];
+
+const SOCIAL_LINKS = [
+  { name: 'LinkedIn', icon: FaLinkedin, href: 'http://www.linkedin.com/in/pooda-samuel' },
+  { name: 'Instagram', icon: FaInstagram, href: 'https://www.instagram.com/samuelpooda09' },
+  { name: 'Facebook', icon: FaFacebook, href: 'https://www.facebook.com/share/1EnrY67Amd/?mibextid=wwXIfr' },
+  { name: 'WhatsApp', icon: FaWhatsapp, href: 'https://wa.me/212649289798' },
+];
+
+const SERVICES = [
+  'Création de sites web',
+  'Stratégie digitale',
+  'Design graphique',
+  'Référencement SEO',
+  'CV & Lettres de motivation',
+  'Projet IziCard NFC',
+];
 
 export default function Footer() {
-  const socialLinks = [
-    {
-      name: 'Facebook',
-      icon: FaFacebook,
-      href: 'https://www.facebook.com/share/1EnrY67Amd/?mibextid=wwXIfr',
-      color: 'hover:text-blue-600'
-    },
-    {
-      name: 'Instagram',
-      icon: FaInstagram,
-      href: 'https://www.instagram.com/samuelpooda09',
-      color: 'hover:text-pink-600'
-    },
-    {
-      name: 'LinkedIn',
-      icon: FaLinkedin,
-      href: 'http://www.linkedin.com/in/pooda-samuel',
-      color: 'hover:text-blue-700'
-    }
-  ];
-
-  const quickLinks = [
-    { name: 'Accueil', href: '/' },
-    { name: 'À Mon Propos', href: '/about' },
-    { name: 'Mon Portfolio', href: '/portfolio' },
-    { name: 'Services', href: '/services' },
-    { name: 'Blog', href: '/blog' },
-    { name: 'Contact', href: '/contact' }
-  ];
-
   return (
-    <footer className="bg-gradient-to-br from-gray-900 via-gray-800 to-gray-900 text-white">
-      <div className="container mx-auto px-4 py-12">
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8">
-          {/* About Section */}
-          <div className="space-y-4">
-            <div className="flex items-center space-x-3">
-              <div className="relative w-12 h-12 overflow-hidden rounded-full border-2 border-blue-500">
-                <Image
-                  src="/images/logo.jpg"
-                  alt="Pooda Samuel Logo"
-                  fill
-                  className="object-cover"
-                />
-              </div>
-              <div>
-                <h3 className="text-lg font-bold">POODA SAMUEL</h3>
-                <p className="text-sm text-gray-400">Finance & Digital</p>
-              </div>
-            </div>
-            <p className="text-gray-300 text-sm leading-relaxed">
-              Étudiant en Finance & Comptabilité à ESMC Business School, passionné par la transformation digitale et l'entrepreneuriat.
-            </p>
-            <div className="flex space-x-4">
-              {socialLinks.map((social) => {
-                const Icon = social.icon;
-                return (
+    <footer
+      className="bg-gray-950 text-white"
+      style={{ fontFamily: "'DM Sans', sans-serif" }}
+    >
+      {/* ── Bande supérieure ── */}
+      <div className="border-b border-white/5">
+        <div className="max-w-6xl mx-auto px-5 sm:px-8 py-12">
+          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+
+            {/* ── Identité ── */}
+            <div className="lg:col-span-1 space-y-5">
+              <Link href="/" className="flex items-center gap-3 group w-fit">
+                <div className="relative w-11 h-11 rounded-full overflow-hidden ring-2 ring-white/10 group-hover:ring-blue-500 transition-all duration-300">
+                  <Image
+                    src="/images/logo.jpg"
+                    alt="Pooda Samuel"
+                    fill
+                    className="object-cover"
+                  />
+                </div>
+                <div className="leading-tight">
+                  <p
+                    className="text-[15px] font-bold text-white tracking-tight"
+                    style={{ fontFamily: "'Sora', sans-serif" }}
+                  >
+                    Pooda Samuel
+                  </p>
+                  <p className="text-[11px] text-gray-500 font-medium">Finance & Digital</p>
+                </div>
+              </Link>
+
+              <p className="text-sm text-gray-400 leading-relaxed">
+                Passionné par la finance, le digital et l'entrepreneuriat.
+                Fondateur d'IziCard — solution NFC made in Burkina Faso.
+              </p>
+
+              {/* Réseaux */}
+              <div className="flex gap-3">
+                {SOCIAL_LINKS.map(({ name, icon: Icon, href }, i) => (
                   <motion.a
-                    key={social.name}
-                    href={social.href}
+                    key={name}
+                    href={href}
                     target="_blank"
                     rel="noopener noreferrer"
-                    whileHover={{ scale: 1.2, y: -5 }}
-                    className={`text-gray-400 ${social.color} transition-colors duration-300`}
-                    aria-label={social.name}
+                    aria-label={name}
+                    initial={{ opacity: 0, y: 8 }}
+                    whileInView={{ opacity: 1, y: 0 }}
+                    viewport={{ once: true }}
+                    transition={{ delay: i * 0.07 }}
+                    whileHover={{ y: -3 }}
+                    className="w-9 h-9 flex items-center justify-center border border-white/10 rounded-xl text-gray-400 hover:text-white hover:border-blue-500 hover:bg-blue-500/10 transition-all duration-200"
                   >
-                    <Icon className="text-2xl" />
+                    <Icon className="text-sm" />
                   </motion.a>
-                );
-              })}
+                ))}
+              </div>
             </div>
-          </div>
 
-          {/* Quick Links */}
-          <div>
-            <h3 className="text-lg font-bold mb-4 text-blue-400">Liens Rapides</h3>
-            <ul className="space-y-2">
-              {quickLinks.map((link) => (
-                <li key={link.name}>
-                  <Link
-                    href={link.href}
-                    className="text-gray-300 hover:text-blue-400 transition-colors text-sm flex items-center space-x-2 group"
+            {/* ── Navigation ── */}
+            <div>
+              <p
+                className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-5"
+              >
+                Navigation
+              </p>
+              <ul className="space-y-3">
+                {NAV_LINKS.map((link) => (
+                  <li key={link.href}>
+                    <Link
+                      href={link.href}
+                      className="text-sm text-gray-400 hover:text-white transition-colors duration-200 flex items-center gap-2 group"
+                    >
+                      <span className="w-0 h-px bg-blue-500 group-hover:w-3 transition-all duration-300" />
+                      {link.label}
+                    </Link>
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* ── Services ── */}
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-5">
+                Services
+              </p>
+              <ul className="space-y-3">
+                {SERVICES.map((s) => (
+                  <li key={s} className="text-sm text-gray-400 flex items-center gap-2">
+                    <span className="w-1 h-1 rounded-full bg-blue-500/60 flex-shrink-0" />
+                    {s}
+                  </li>
+                ))}
+              </ul>
+            </div>
+
+            {/* ── Contact ── */}
+            <div>
+              <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-5">
+                Contact
+              </p>
+              <ul className="space-y-4">
+                <li>
+                  <a
+                    href="mailto:poodasamuelpro@gmail.com"
+                    className="flex items-start gap-3 text-sm text-gray-400 hover:text-white transition-colors group"
                   >
-                    <span className="w-0 h-px bg-blue-400 group-hover:w-4 transition-all duration-300" />
-                    <span>{link.name}</span>
-                  </Link>
+                    <FaEnvelope className="text-blue-500 mt-0.5 flex-shrink-0" />
+                    <span className="break-all">poodasamuelpro@gmail.com</span>
+                  </a>
                 </li>
-              ))}
-            </ul>
-          </div>
+                <li>
+                  <a
+                    href="https://wa.me/212649289798"
+                    target="_blank"
+                    rel="noopener noreferrer"
+                    className="flex items-center gap-3 text-sm text-gray-400 hover:text-white transition-colors"
+                  >
+                    <FaWhatsapp className="text-green-500 flex-shrink-0" />
+                    +212 649 289 798
+                  </a>
+                </li>
+                <li className="flex items-center gap-3 text-sm text-gray-400">
+                  <FaMapMarkerAlt className="text-blue-500 flex-shrink-0" />
+                  Casablanca, Maroc
+                </li>
+              </ul>
 
-          {/* Services */}
-          <div>
-            <h3 className="text-lg font-bold mb-4 text-blue-400">Mes Services</h3>
-            <ul className="space-y-2 text-sm text-gray-300">
-              <li>• Création de sites web modernes</li>
-              <li>• Stratégie digitale</li>
-              <li>• Design graphique</li>
-              <li>• Optimisation SEO</li>
-              <li>• Gestion de campagnes publicitaires</li>
-              <li>• Rédaction de CV & lettres de motivation</li>
-            </ul>
-          </div>
-
-          {/* Contact Info */}
-          <div>
-            <h3 className="text-lg font-bold mb-4 text-blue-400">Contact</h3>
-            <ul className="space-y-3 text-sm">
-              <li className="flex items-start space-x-3 text-gray-300">
-                <FaMapMarkerAlt className="text-blue-400 mt-1 flex-shrink-0" />
-                <span>Casablanca, Maroc</span>
-              </li>
-              <li className="flex items-center space-x-3 text-gray-300">
-                <FaEnvelope className="text-blue-400 flex-shrink-0" />
-                <a href="mailto:contact@poodasamuel.com" className="hover:text-blue-400 transition-colors">
-                  contact@poodasamuel.com
-                </a>
-              </li>
-              <li className="flex items-center space-x-3 text-gray-300">
-                <FaPhone className="text-blue-400 flex-shrink-0" />
-                <span>Disponible sur demande</span>
-              </li>
-            </ul>
-          </div>
-        </div>
-
-        {/* Bottom Bar */}
-        <div className="mt-12 pt-8 border-t border-gray-700">
-          <div className="flex flex-col md:flex-row justify-between items-center space-y-4 md:space-y-0">
-            <p className="text-gray-400 text-sm text-center md:text-left">
-              © {new Date().getFullYear()} Pooda Samuel. Tous droits réservés.
-            </p>
-            <div className="flex space-x-6 text-sm">
-              <Link href="/privacy" className="text-gray-400 hover:text-blue-400 transition-colors">
-                Politique de confidentialité
-              </Link>
-              <Link href="/terms" className="text-gray-400 hover:text-blue-400 transition-colors">
-                Conditions d'utilisation
+              {/* CTA */}
+              <Link
+                href="/contact"
+                className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-500 transition-colors duration-200"
+              >
+                Discutons ensemble →
               </Link>
             </div>
+
           </div>
         </div>
       </div>
+
+      {/* ── Barre basse ── */}
+      <div className="max-w-6xl mx-auto px-5 sm:px-8 py-5">
+        <div className="flex flex-col sm:flex-row items-center justify-between gap-3">
+          <p className="text-xs text-gray-600">
+            © {new Date().getFullYear()} Pooda Samuel — Tous droits réservés.
+          </p>
+          <div className="flex items-center gap-1 text-xs text-gray-600">
+            <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
+            Disponible pour de nouveaux projets
+          </div>
+        </div>
+      </div>
+
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap');
+      `}</style>
     </footer>
   );
 }
