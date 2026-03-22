@@ -1,247 +1,279 @@
 "use client";
 
+// app/services/page.tsx
+
 import { motion } from 'framer-motion';
 import Link from 'next/link';
-import { FaCode, FaChartLine, FaPalette, FaSearch, FaBullhorn, FaFileAlt, FaCheck, FaArrowRight } from 'react-icons/fa';
+import {
+  FaGlobe, FaMobileAlt, FaPalette, FaSearch,
+  FaFileAlt, FaCheck, FaArrowRight, FaChartLine,
+} from 'react-icons/fa';
+
+const fadeUp = (delay = 0) => ({
+  initial: { opacity: 0, y: 20 },
+  whileInView: { opacity: 1, y: 0 },
+  viewport: { once: true },
+  transition: { duration: 0.55, delay },
+});
+
+const fadeUpHero = (delay = 0) => ({
+  initial: { opacity: 0, y: 20 },
+  animate: { opacity: 1, y: 0 },
+  transition: { duration: 0.55, delay },
+});
+
+// ── Data ──────────────────────────────────────────────────────────────────────
+
+const SERVICES = [
+  {
+    icon: FaChartLine,
+    title: 'Analyse & Conseil Financier',
+    desc: 'Analyse de bilans, reporting, tableaux de bord KPI et aide à la décision financière.',
+    features: [
+      'Analyse de bilans et comptes de résultat',
+      'Construction de tableaux de bord KPI',
+      'Reporting financier',
+      'Aide à la décision d\'investissement',
+      'Audit et recommandations',
+    ],
+    accent: 'bg-blue-50 text-blue-600',
+    border: 'border-blue-100',
+    note: 'Domaine principal',
+  },
+  {
+    icon: FaGlobe,
+    title: 'Création de sites web',
+    desc: 'Sites vitrines et portfolios modernes, responsifs et optimisés pour votre activité.',
+    features: [
+      'Sites vitrines professionnels',
+      'Design responsive et moderne',
+      'Optimisation des performances',
+      'Intégration de formulaires et outils',
+      'Mise en ligne et suivi',
+    ],
+    accent: 'bg-indigo-50 text-indigo-600',
+    border: 'border-indigo-100',
+    note: null,
+  },
+  {
+    icon: FaMobileAlt,
+    title: 'Applications mobiles WebView',
+    desc: 'Développement d\'applications mobiles WebView pour iOS et Android à partir de votre site web.',
+    features: [
+      'Application mobile iOS & Android',
+      'Intégration de votre site web existant',
+      'Interface native et fluide',
+      'Publication sur les stores',
+      'Maintenance et mises à jour',
+    ],
+    accent: 'bg-orange-50 text-orange-600',
+    border: 'border-orange-100',
+    note: null,
+  },
+  {
+    icon: FaPalette,
+    title: 'Design graphique & identité visuelle',
+    desc: 'Création de logos, chartes graphiques, flyers et visuels pour vos supports de communication.',
+    features: [
+      'Logo et identité visuelle',
+      'Flyers et affiches',
+      'Visuels pour réseaux sociaux',
+      'Charte graphique complète',
+      'Montage vidéo court (CapCut)',
+    ],
+    accent: 'bg-pink-50 text-pink-600',
+    border: 'border-pink-100',
+    note: null,
+  },
+  {
+    icon: FaSearch,
+    title: 'Référencement SEO & audit',
+    desc: 'Optimisation de votre visibilité sur Google grâce à un audit technique et une stratégie SEO adaptée.',
+    features: [
+      'Audit SEO technique complet',
+      'Optimisation on-page & off-page',
+      'Analyse des mots-clés',
+      'Recommandations ciblées',
+      'Suivi et reporting',
+    ],
+    accent: 'bg-green-50 text-green-600',
+    border: 'border-green-100',
+    note: null,
+  },
+  {
+    icon: FaFileAlt,
+    title: 'CV & lettres de motivation',
+    desc: 'Rédaction de documents professionnels percutants, personnalisés selon votre profil et vos objectifs.',
+    features: [
+      'CV professionnel et moderne',
+      'Lettre de motivation personnalisée',
+      'Adaptation au poste visé',
+      'Contenu optimisé recruteurs',
+      'Révisions incluses',
+    ],
+    accent: 'bg-purple-50 text-purple-600',
+    border: 'border-purple-100',
+    note: null,
+  },
+];
+
+const PROCESS = [
+  {
+    step: '01',
+    title: 'Échange initial',
+    desc: 'On discute de votre besoin, de vos objectifs et du contexte de votre projet.',
+  },
+  {
+    step: '02',
+    title: 'Proposition',
+    desc: 'Je vous soumets une solution adaptée avec un devis clair et transparent.',
+  },
+  {
+    step: '03',
+    title: 'Réalisation',
+    desc: 'Je travaille sur votre projet avec des points réguliers pour valider ensemble chaque étape.',
+  },
+  {
+    step: '04',
+    title: 'Livraison',
+    desc: 'Livraison du projet finalisé avec accompagnement pour une prise en main autonome.',
+  },
+];
+
+const WHY = [
+  {
+    title: 'Rigueur & sérieux',
+    desc: 'Formation en Finance & Comptabilité, j\'apporte une approche structurée et méthodique à chaque projet.',
+  },
+  {
+    title: 'Profil polyvalent',
+    desc: 'Finance, digital, design, développement — je m\'adapte à des besoins variés sans perdre en qualité.',
+  },
+  {
+    title: 'Proximité & transparence',
+    desc: 'Échanges directs, devis clairs, suivi régulier. Vous savez toujours où en est votre projet.',
+  },
+];
+
+// ── Composant ─────────────────────────────────────────────────────────────────
 
 export default function ServicesPage() {
-  const services = [
-    {
-      icon: FaCode,
-      title: "Création de Sites Web Modernes",
-      description: "Sites professionnels et responsives avec WordPress/Elementor",
-      features: [
-        "Sites vitrines & e-commerce",
-        "Design moderne et responsive",
-        "Fonctionnalités personnalisées",
-        "Maintenance et mises à jour",
-        "Intégration de systèmes de paiement"
-      ],
-      color: "from-blue-500 to-cyan-500",
-      price: "À partir de 500 €"
-    },
-    {
-      icon: FaChartLine,
-      title: "Stratégie Digitale Complète",
-      description: "Content marketing, réseaux sociaux et acquisition de trafic",
-      features: [
-        "Stratégie de contenu personnalisée",
-        "Gestion des réseaux sociaux",
-        "Acquisition de trafic qualifié",
-        "Analyse et reporting",
-        "Optimisation continue"
-      ],
-      color: "from-purple-500 to-pink-500",
-      price: "À partir de 300 €/mois"
-    },
-    {
-      icon: FaPalette,
-      title: "Design Graphique & Visuel",
-      description: "Création de logos, flyers, présentations et montage vidéo",
-      features: [
-        "Logos professionnels",
-        "Flyers et affiches",
-        "Présentations visuelles",
-        "Montage vidéo (CapCut)",
-        "Charte graphique complète"
-      ],
-      color: "from-pink-500 to-rose-500",
-      price: "À partir de 50 €"
-    },
-    {
-      icon: FaSearch,
-      title: "Optimisation SEO",
-      description: "Audit SEO on-page/off-page, Google Analytics et SEMrush",
-      features: [
-        "Audit SEO complet",
-        "Optimisation on-page",
-        "Stratégie de backlinks",
-        "Configuration Google Analytics",
-        "Reporting mensuel SEMrush"
-      ],
-      color: "from-green-500 to-teal-500",
-      price: "À partir de 200 €"
-    },
-    {
-      icon: FaBullhorn,
-      title: "Gestion de Campagnes Publicitaires",
-      description: "Google Ads, Facebook Ads et Instagram pour booster votre visibilité",
-      features: [
-        "Campagnes Google Ads",
-        "Publicités Facebook & Instagram",
-        "Ciblage et optimisation",
-        "A/B Testing",
-        "Reporting détaillé"
-      ],
-      color: "from-orange-500 to-red-500",
-      price: "À partir de 150 €/mois"
-    },
-    {
-      icon: FaFileAlt,
-      title: "Rédaction de CV & Lettres de Motivation",
-      description: "Documents professionnels percutants pour décrocher vos opportunités",
-      features: [
-        "CV professionnel ATS-friendly",
-        "Lettre de motivation personnalisée",
-        "Optimisation LinkedIn",
-        "Révisions illimitées",
-        "Conseil en personal branding"
-      ],
-      color: "from-indigo-500 to-purple-500",
-      price: "À partir de 40 €"
-    }
-  ];
-
-  const process = [
-    {
-      step: "01",
-      title: "Découverte",
-      description: "Analyse de vos besoins et objectifs lors d'un premier échange"
-    },
-    {
-      step: "02",
-      title: "Proposition",
-      description: "Présentation d'une solution sur mesure avec devis détaillé"
-    },
-    {
-      step: "03",
-      title: "Réalisation",
-      description: "Développement et création avec validation à chaque étape"
-    },
-    {
-      step: "04",
-      title: "Livraison",
-      description: "Mise en ligne et formation pour une autonomie complète"
-    }
-  ];
-
   return (
-    <div className="min-h-screen bg-gradient-to-br from-white via-blue-50 to-purple-50">
-      {/* Hero Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ duration: 0.6 }}
-            className="text-center max-w-4xl mx-auto"
+    <main className="min-h-screen bg-[#fafaf9]" style={{ fontFamily: "'DM Sans', sans-serif" }}>
+
+      {/* ══ HERO ══ */}
+      <section className="relative pt-24 pb-16 px-5 sm:px-8 overflow-hidden">
+        <div
+          aria-hidden
+          className="pointer-events-none absolute top-0 right-0 w-[480px] h-[480px] opacity-40"
+          style={{ background: 'radial-gradient(ellipse at top right, rgba(59,130,246,0.08) 0%, transparent 65%)' }}
+        />
+        <div className="max-w-3xl mx-auto">
+          <motion.p {...fadeUpHero(0)} className="text-xs font-bold tracking-[0.2em] uppercase text-blue-500 mb-4">
+            Services
+          </motion.p>
+          <motion.h1
+            {...fadeUpHero(0.07)}
+            className="text-4xl sm:text-5xl font-bold text-gray-900 leading-tight mb-5"
+            style={{ fontFamily: "'Sora', sans-serif" }}
           >
-            <h1 className="text-5xl md:text-6xl font-bold mb-6">
-              Mes Services
-            </h1>
-            <p className="text-xl opacity-90">
-              Des solutions digitales complètes pour booster votre présence en ligne et atteindre vos objectifs
-            </p>
-          </motion.div>
+            Ce que je propose
+          </motion.h1>
+          <motion.p {...fadeUpHero(0.14)} className="text-gray-500 text-lg leading-relaxed max-w-xl">
+            La finance et la comptabilité sont au cœur de mon parcours. En complément, je propose des services digitaux concrets issus de mes expériences réelles — avec rigueur, honnêteté et envie d'apprendre.
+          </motion.p>
         </div>
       </section>
 
-      {/* Services Grid */}
-      <section className="py-20">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Ce que je propose
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Une gamme complète de services pour répondre à tous vos besoins digitaux
-            </p>
-          </motion.div>
+      {/* Divider */}
+      <div className="max-w-5xl mx-auto px-5">
+        <div className="h-px bg-gray-200" />
+      </div>
 
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-8 max-w-7xl mx-auto">
-            {services.map((service, index) => {
-              const Icon = service.icon;
-              return (
-                <motion.div
-                  key={service.title}
-                  initial={{ opacity: 0, y: 30 }}
-                  whileInView={{ opacity: 1, y: 0 }}
-                  viewport={{ once: true }}
-                  transition={{ duration: 0.5, delay: index * 0.1 }}
-                  whileHover={{ y: -10, scale: 1.02 }}
-                  className="group bg-white rounded-3xl overflow-hidden shadow-lg hover:shadow-2xl transition-all duration-300"
-                >
-                  {/* Service Header */}
-                  <div className={`p-8 bg-gradient-to-br ${service.color} text-white`}>
-                    <Icon className="text-5xl mb-4" />
-                    <h3 className="text-2xl font-bold mb-2">{service.title}</h3>
-                    <p className="opacity-90">{service.description}</p>
-                  </div>
-
-                  {/* Service Content */}
-                  <div className="p-8">
-                    <ul className="space-y-3 mb-6">
-                      {service.features.map((feature, idx) => (
-                        <li key={idx} className="flex items-start space-x-3">
-                          <FaCheck className="text-green-500 mt-1 flex-shrink-0" />
-                          <span className="text-gray-700">{feature}</span>
-                        </li>
-                      ))}
-                    </ul>
-
-                    <div className="pt-6 border-t border-gray-200">
-                      <p className="text-2xl font-bold text-gray-900 mb-4">{service.price}</p>
-                      <Link
-                        href="/contact"
-                        className={`inline-flex items-center space-x-2 px-6 py-3 bg-gradient-to-r ${service.color} text-white rounded-full font-semibold hover:shadow-lg transform hover:scale-105 transition-all duration-300`}
-                      >
-                        <span>Demander un devis</span>
-                        <FaArrowRight />
-                      </Link>
-                    </div>
-                  </div>
-                </motion.div>
-              );
-            })}
-          </div>
-        </div>
-      </section>
-
-      {/* Process Section */}
-      <section className="py-20 bg-white">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Ma Méthode de Travail
-            </h2>
-            <p className="text-xl text-gray-600 max-w-2xl mx-auto">
-              Un processus simple et efficace pour garantir votre satisfaction
-            </p>
-          </motion.div>
-
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-8 max-w-6xl mx-auto">
-            {process.map((item, index) => (
+      {/* ══ SERVICES ══ */}
+      <section className="py-16 px-5 sm:px-8">
+        <div className="max-w-6xl mx-auto grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-5">
+          {SERVICES.map((s, i) => {
+            const Icon = s.icon;
+            return (
               <motion.div
-                key={item.step}
-                initial={{ opacity: 0, y: 30 }}
-                whileInView={{ opacity: 1, y: 0 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="relative text-center"
+                key={s.title}
+                {...fadeUp(i * 0.07)}
+                whileHover={{ y: -4 }}
+                className={`bg-white border rounded-2xl p-6 shadow-sm hover:shadow-md transition-all duration-300 flex flex-col ${s.border}`}
               >
-                <div className="mb-6">
-                  <span className="text-6xl font-bold bg-gradient-to-br from-blue-600 to-purple-600 bg-clip-text text-transparent">
-                    {item.step}
+                {/* Header */}
+                <div className="flex items-start gap-3 mb-4">
+                  <span className={`flex-shrink-0 w-11 h-11 rounded-xl flex items-center justify-center ${s.accent}`}>
+                    <Icon className="text-lg" />
                   </span>
+                  <div>
+                    {s.note && (
+                      <span className="text-[10px] font-bold uppercase tracking-wider bg-blue-100 text-blue-600 px-2 py-0.5 rounded-full mb-1 inline-block">
+                        {s.note}
+                      </span>
+                    )}
+                    <h3 className="text-sm font-bold text-gray-900 leading-snug">{s.title}</h3>
+                  </div>
                 </div>
-                <h3 className="text-xl font-bold text-gray-900 mb-3">{item.title}</h3>
-                <p className="text-gray-600">{item.description}</p>
 
-                {/* Arrow connector (except for last item) */}
-                {index < process.length - 1 && (
-                  <div className="hidden lg:block absolute top-8 left-full w-full h-0.5 bg-gradient-to-r from-blue-600 to-purple-600 transform -translate-x-1/2" />
+                <p className="text-xs text-gray-500 leading-relaxed mb-4">{s.desc}</p>
+
+                {/* Features */}
+                <ul className="space-y-1.5 mb-5 flex-1">
+                  {s.features.map((f) => (
+                    <li key={f} className="flex items-start gap-2 text-xs text-gray-600">
+                      <FaCheck className="text-green-500 flex-shrink-0 mt-0.5 text-[10px]" />
+                      {f}
+                    </li>
+                  ))}
+                </ul>
+
+                {/* CTA */}
+                <Link
+                  href="/contact"
+                  className="mt-auto inline-flex items-center gap-1.5 text-xs font-semibold text-blue-600 hover:gap-2.5 transition-all"
+                >
+                  Demander un devis <FaArrowRight className="text-[10px]" />
+                </Link>
+              </motion.div>
+            );
+          })}
+        </div>
+      </section>
+
+      {/* ══ PROCESS ══ */}
+      <section className="py-16 px-5 sm:px-8 bg-white">
+        <div className="max-w-6xl mx-auto">
+          <motion.div {...fadeUp(0)} className="mb-10">
+            <p className="text-xs font-bold tracking-[0.2em] uppercase text-blue-500 mb-3">Méthode</p>
+            <h2 className="text-3xl font-bold text-gray-900" style={{ fontFamily: "'Sora', sans-serif" }}>
+              Comment je travaille
+            </h2>
+          </motion.div>
+
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-6">
+            {PROCESS.map((p, i) => (
+              <motion.div
+                key={p.step}
+                {...fadeUp(i * 0.08)}
+                className="relative"
+              >
+                <div className="bg-[#fafaf9] border border-gray-100 rounded-2xl p-6 h-full">
+                  <p
+                    className="text-4xl font-bold text-blue-100 mb-3"
+                    style={{ fontFamily: "'Sora', sans-serif" }}
+                  >
+                    {p.step}
+                  </p>
+                  <h3 className="text-sm font-bold text-gray-900 mb-2">{p.title}</h3>
+                  <p className="text-xs text-gray-500 leading-relaxed">{p.desc}</p>
+                </div>
+                {/* Connecteur */}
+                {i < PROCESS.length - 1 && (
+                  <div className="hidden lg:flex absolute top-1/2 -right-3 z-10 w-6 h-6 items-center justify-center">
+                    <FaArrowRight className="text-gray-300 text-xs" />
+                  </div>
                 )}
               </motion.div>
             ))}
@@ -249,86 +281,70 @@ export default function ServicesPage() {
         </div>
       </section>
 
-      {/* Why Choose Me Section */}
-      <section className="py-20 bg-gradient-to-br from-gray-50 to-white">
-        <div className="container mx-auto px-4">
-          <motion.div
-            initial={{ opacity: 0, y: 30 }}
-            whileInView={{ opacity: 1, y: 0 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center mb-16"
-          >
-            <h2 className="text-4xl md:text-5xl font-bold text-gray-900 mb-4">
-              Pourquoi me choisir ?
+      {/* ══ POURQUOI MOI ══ */}
+      <section className="py-16 px-5 sm:px-8">
+        <div className="max-w-6xl mx-auto">
+          <motion.div {...fadeUp(0)} className="mb-10">
+            <p className="text-xs font-bold tracking-[0.2em] uppercase text-blue-500 mb-3">Pourquoi moi</p>
+            <h2 className="text-3xl font-bold text-gray-900" style={{ fontFamily: "'Sora', sans-serif" }}>
+              Ce qui me différencie
             </h2>
           </motion.div>
 
-          <div className="grid grid-cols-1 md:grid-cols-3 gap-8 max-w-5xl mx-auto">
-            {[
-              {
-                title: "Expertise Multiple",
-                description: "Compétences variées en web, design, marketing et finance pour une approche globale"
-              },
-              {
-                title: "Qualité Garantie",
-                description: "Travail rigoureux, attention aux détails et respect des délais promis"
-              },
-              {
-                title: "Accompagnement Personnalisé",
-                description: "Écoute, conseil et suivi régulier pour assurer votre réussite"
-              }
-            ].map((benefit, index) => (
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-5">
+            {WHY.map((w, i) => (
               <motion.div
-                key={benefit.title}
-                initial={{ opacity: 0, scale: 0.9 }}
-                whileInView={{ opacity: 1, scale: 1 }}
-                viewport={{ once: true }}
-                transition={{ duration: 0.5, delay: index * 0.1 }}
-                className="p-8 bg-white rounded-2xl shadow-lg hover:shadow-xl transition-all duration-300 text-center"
+                key={w.title}
+                {...fadeUp(i * 0.1)}
+                className="bg-white border border-gray-100 rounded-2xl p-6 shadow-sm"
               >
-                <h3 className="text-2xl font-bold text-gray-900 mb-4">{benefit.title}</h3>
-                <p className="text-gray-600 leading-relaxed">{benefit.description}</p>
+                <h3 className="text-sm font-bold text-gray-900 mb-2">{w.title}</h3>
+                <p className="text-xs text-gray-500 leading-relaxed">{w.desc}</p>
               </motion.div>
             ))}
           </div>
         </div>
       </section>
 
-      {/* CTA Section */}
-      <section className="py-20 bg-gradient-to-r from-blue-600 via-purple-600 to-pink-600 text-white">
-        <div className="container mx-auto px-4">
+      {/* ══ CTA ══ */}
+      <section className="py-16 px-5 sm:px-8 bg-white">
+        <div className="max-w-3xl mx-auto">
           <motion.div
-            initial={{ opacity: 0, scale: 0.9 }}
-            whileInView={{ opacity: 1, scale: 1 }}
-            viewport={{ once: true }}
-            transition={{ duration: 0.6 }}
-            className="text-center max-w-3xl mx-auto"
+            {...fadeUp(0)}
+            className="bg-gray-900 rounded-3xl px-8 py-14 text-center space-y-6"
           >
-            <h2 className="text-4xl md:text-5xl font-bold mb-6">
-              Prêt à démarrer votre projet ?
+            <p className="text-xs font-bold tracking-[0.2em] uppercase text-blue-400">Contact</p>
+            <h2
+              className="text-3xl sm:text-4xl font-bold text-white"
+              style={{ fontFamily: "'Sora', sans-serif" }}
+            >
+              Parlons de votre projet
             </h2>
-            <p className="text-xl mb-8 opacity-90">
-              Contactez-moi dès aujourd'hui pour discuter de votre projet et obtenir un devis personnalisé gratuit
+            <p className="text-gray-400 leading-relaxed max-w-md mx-auto">
+              Vous avez un projet en tête ? Contactez-moi pour un échange sans engagement. Je vous réponds sous 24–48h.
             </p>
-            <div className="flex flex-col sm:flex-row gap-4 justify-center">
+            <div className="flex flex-wrap justify-center gap-3 pt-2">
               <Link
                 href="/contact"
-                className="inline-flex items-center justify-center space-x-2 px-10 py-5 bg-white text-blue-600 rounded-full font-bold shadow-xl hover:shadow-2xl transform hover:scale-105 transition-all duration-300"
+                className="inline-flex items-center gap-2 px-7 py-3.5 bg-white text-gray-900 text-sm font-semibold rounded-xl hover:bg-blue-600 hover:text-white transition-colors duration-200"
               >
-                <span>Me Contacter</span>
-                <FaArrowRight />
+                Demander un devis gratuit
+                <FaArrowRight className="text-xs" />
               </Link>
               <Link
                 href="/portfolio"
-                className="inline-flex items-center justify-center space-x-2 px-10 py-5 bg-transparent border-2 border-white text-white rounded-full font-bold hover:bg-white hover:text-blue-600 transition-all duration-300"
+                className="inline-flex items-center gap-2 px-7 py-3.5 border border-white/20 text-white text-sm font-semibold rounded-xl hover:border-blue-400 hover:text-blue-400 transition-colors duration-200"
               >
-                <span>Voir mes réalisations</span>
+                Voir mes réalisations
               </Link>
             </div>
           </motion.div>
         </div>
       </section>
-    </div>
+
+      <style jsx global>{`
+        @import url('https://fonts.googleapis.com/css2?family=Sora:wght@600;700&family=DM+Sans:wght@400;500;600&display=swap');
+      `}</style>
+    </main>
   );
 }
