@@ -5,7 +5,14 @@
 import Link from 'next/link';
 import Image from 'next/image';
 import { motion } from 'framer-motion';
-import { FaFacebook, FaInstagram, FaLinkedin, FaWhatsapp, FaEnvelope, FaMapMarkerAlt } from 'react-icons/fa';
+import {
+  FaFacebook,
+  FaInstagram,
+  FaLinkedin,
+  FaWhatsapp,
+  FaEnvelope,
+  FaMapMarkerAlt,
+} from 'react-icons/fa';
 
 const NAV_LINKS = [
   { href: '/', label: 'Accueil' },
@@ -23,28 +30,19 @@ const SOCIAL_LINKS = [
   { name: 'WhatsApp', icon: FaWhatsapp, href: 'https://wa.me/212649289798' },
 ];
 
-const SERVICES = [
-  'Création de sites web',
-  'Stratégie digitale',
-  'Design graphique',
-  'Référencement SEO',
-  'CV & Lettres de motivation',
-  'Projet IziCard NFC',
-];
-
 export default function Footer() {
   return (
     <footer
       className="bg-gray-950 text-white"
       style={{ fontFamily: "'DM Sans', sans-serif" }}
     >
-      {/* ── Bande supérieure ── */}
+      {/* ── Contenu principal ── */}
       <div className="border-b border-white/5">
         <div className="max-w-6xl mx-auto px-5 sm:px-8 py-12">
-          <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-10">
+          <div className="grid grid-cols-1 md:grid-cols-3 gap-10">
 
             {/* ── Identité ── */}
-            <div className="lg:col-span-1 space-y-5">
+            <div className="md:col-span-1 space-y-5">
               <Link href="/" className="flex items-center gap-3 group w-fit">
                 <div className="relative w-11 h-11 rounded-full overflow-hidden ring-2 ring-white/10 group-hover:ring-blue-500 transition-all duration-300">
                   <Image
@@ -66,11 +64,11 @@ export default function Footer() {
               </Link>
 
               <p className="text-sm text-gray-400 leading-relaxed">
-                Passionné par la finance, le digital et l'entrepreneuriat.
-                Fondateur d'IziCard — solution NFC made in Burkina Faso.
+                Étudiant en Finance & Comptabilité, curieux du digital et engagé
+                dans des projets à impact. Toujours en mouvement, toujours en construction.
               </p>
 
-              {/* Réseaux */}
+              {/* Réseaux sociaux */}
               <div className="flex gap-3">
                 {SOCIAL_LINKS.map(({ name, icon: Icon, href }, i) => (
                   <motion.a
@@ -94,9 +92,7 @@ export default function Footer() {
 
             {/* ── Navigation ── */}
             <div>
-              <p
-                className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-5"
-              >
+              <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-5">
                 Navigation
               </p>
               <ul className="space-y-3">
@@ -114,21 +110,6 @@ export default function Footer() {
               </ul>
             </div>
 
-            {/* ── Services ── */}
-            <div>
-              <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-5">
-                Services
-              </p>
-              <ul className="space-y-3">
-                {SERVICES.map((s) => (
-                  <li key={s} className="text-sm text-gray-400 flex items-center gap-2">
-                    <span className="w-1 h-1 rounded-full bg-blue-500/60 flex-shrink-0" />
-                    {s}
-                  </li>
-                ))}
-              </ul>
-            </div>
-
             {/* ── Contact ── */}
             <div>
               <p className="text-xs font-bold uppercase tracking-widest text-gray-500 mb-5">
@@ -138,7 +119,7 @@ export default function Footer() {
                 <li>
                   <a
                     href="mailto:poodasamuelpro@gmail.com"
-                    className="flex items-start gap-3 text-sm text-gray-400 hover:text-white transition-colors group"
+                    className="flex items-start gap-3 text-sm text-gray-400 hover:text-white transition-colors"
                   >
                     <FaEnvelope className="text-blue-500 mt-0.5 flex-shrink-0" />
                     <span className="break-all">poodasamuelpro@gmail.com</span>
@@ -161,7 +142,6 @@ export default function Footer() {
                 </li>
               </ul>
 
-              {/* CTA */}
               <Link
                 href="/contact"
                 className="mt-6 inline-flex items-center gap-2 px-5 py-2.5 bg-blue-600 text-white text-sm font-semibold rounded-xl hover:bg-blue-500 transition-colors duration-200"
@@ -180,7 +160,7 @@ export default function Footer() {
           <p className="text-xs text-gray-600">
             © {new Date().getFullYear()} Pooda Samuel — Tous droits réservés.
           </p>
-          <div className="flex items-center gap-1 text-xs text-gray-600">
+          <div className="flex items-center gap-1.5 text-xs text-gray-600">
             <span className="w-1.5 h-1.5 rounded-full bg-green-400 animate-pulse" />
             Disponible pour de nouveaux projets
           </div>
