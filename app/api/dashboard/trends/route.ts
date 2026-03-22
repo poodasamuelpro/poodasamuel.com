@@ -1,21 +1,24 @@
 // app/api/dashboard/trends/route.ts
 //
-// API qui retourne les tendances stockées dans Supabase
-// Utilisée par la page /dashboard pour afficher le contenu
+// Supabase initialisé en lazy dans les fonctions
+// pour éviter le crash au build si les variables manquent
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
-const supabase = createClient(
-  process.env.NEXT_PUBLIC_SUPABASE_URL!,
-  process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
-);
+function getSupabase() {
+  return createClient(
+    process.env.NEXT_PUBLIC_SUPABASE_URL!,
+    process.env.NEXT_PUBLIC_SUPABASE_ANON_KEY!
+  );
+}
 
-// GET /api/dashboard/trends?week=2026-03-22
 export async function GET(request: NextRequest) {
   const week = request.nextUrl.searchParams.get('week');
 
   try {
+    const supabase = getSupabase();
+
     let query = supabase
       .from('weekly_trends')
       .select('*')
@@ -24,15 +27,12 @@ export async function GET(request: NextRequest) {
     if (week) {
       query = query.eq('week_start', week);
     } else {
-      // Par défaut : dernière semaine disponible
       query = query.order('week_start', { ascending: false }).limit(15);
     }
 
     const { data, error } = await query;
-
     if (error) throw error;
 
-    // Récupérer les semaines disponibles pour le sélecteur
     const { data: weeks } = await supabase
       .from('weekly_trends')
       .select('week_start, week_label')
@@ -56,10 +56,10 @@ export async function GET(request: NextRequest) {
   }
 }
 
-// PATCH /api/dashboard/trends — Marquer comme publié
 export async function PATCH(request: NextRequest) {
   try {
     const { id, is_published } = await request.json();
+    const supabase = getSupabase();
 
     const { error } = await supabase
       .from('weekly_trends')
