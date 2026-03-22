@@ -1,14 +1,23 @@
+// app/api/send-email/route.ts
+//
+// Initialisation lazy de Resend — le client est créé à l'exécution
+// et non au démarrage du module. Cela évite que le build Vercel
+// plante quand RESEND_API_KEY n'est pas encore configurée.
+
 import { NextRequest, NextResponse } from 'next/server';
 import { Resend } from 'resend';
 
-const resend = new Resend(process.env.RESEND_API_KEY);
+// Lazy init — instancié uniquement lors d'un vrai appel POST
+// et non au moment du build
+function getResend() {
+  return new Resend(process.env.RESEND_API_KEY!);
+}
 
 export async function POST(request: NextRequest) {
   try {
     const body = await request.json();
     const { nom, email, objet, message } = body;
 
-    // Validation
     if (!nom || !email || !message) {
       return NextResponse.json(
         { error: 'Champs requis manquants.' },
@@ -16,8 +25,7 @@ export async function POST(request: NextRequest) {
       );
     }
 
-    // Envoi vers ta boîte Gmail
-    await resend.emails.send({
+    await getResend().emails.send({
       from: 'Portfolio Contact <onboarding@resend.dev>',
       to: 'poodasamuelpro@gmail.com',
       subject: objet ? `[Portfolio] ${objet}` : `[Portfolio] Nouveau message de ${nom}`,
@@ -62,7 +70,7 @@ export async function POST(request: NextRequest) {
   } catch (error) {
     console.error('Erreur envoi email:', error);
     return NextResponse.json(
-      { error: 'Échec de l\'envoi. Réessayez.' },
+      { error: "Échec de l'envoi. Réessayez." },
       { status: 500 }
     );
   }
