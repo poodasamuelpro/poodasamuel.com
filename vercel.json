@@ -9,5 +9,11 @@
     "deploymentEnabled": {
       "main": true
     }
-  }
+  },
+  "crons": [
+    {
+      "path": "/api/cron/weekly-trends",
+      "schedule": "0 20 * * 0"
+    }
+  ]
 }
