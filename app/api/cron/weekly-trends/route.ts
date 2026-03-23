@@ -199,7 +199,7 @@ JSON uniquement. Commence par [ termine par ]. Pas de texte autour. Sauts de lig
 
 ${trends.map((t, i) => `${i + 1}. [${t.category}] ${t.title} — ${t.description.slice(0, 120)}`).join('\n')}`;
 
-  const models = ['gemini-2.5-flash', 'gemini-2.0-flash-lite', 'gemini-1.5-flash-latest'];
+  const models = ['gemini-2.5-flash', 'gemini-2.0-flash', 'gemini-1.5-flash-8b'];
 
   for (const model of models) {
     try {
@@ -212,7 +212,7 @@ ${trends.map((t, i) => `${i + 1}. [${t.category}] ${t.title} — ${t.description
             contents: [{ parts: [{ text: prompt }] }],
             generationConfig: { temperature: 0.7, maxOutputTokens: 4096 },
           }),
-          signal: AbortSignal.timeout(20000),
+          signal: AbortSignal.timeout(30000),
         }
       );
 
