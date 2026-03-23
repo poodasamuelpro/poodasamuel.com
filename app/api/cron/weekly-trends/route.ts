@@ -14,16 +14,10 @@ function getSupabase() {
 
 async function sendEmail(to: string, subject: string, html: string) {
   const apiKey = process.env.RESEND_API_KEY;
-  if (!apiKey) {
-    console.warn('RESEND_API_KEY manquante');
-    return;
-  }
+  if (!apiKey) { console.warn('RESEND_API_KEY manquante'); return; }
   const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
-    headers: {
-      'Authorization': `Bearer ${apiKey}`,
-      'Content-Type': 'application/json',
-    },
+    headers: { 'Authorization': `Bearer ${apiKey}`, 'Content-Type': 'application/json' },
     body: JSON.stringify({
       from: 'Portfolio Bot <contact@poodasamuelpro.izicardouaga.com>',
       to: [to],
@@ -31,18 +25,17 @@ async function sendEmail(to: string, subject: string, html: string) {
       html,
     }),
   });
-  if (!res.ok) {
-    const err = await res.text();
-    console.error('Resend error:', err);
-  }
+  if (!res.ok) console.error('Resend error:', await res.text());
+  else console.log('✅ Email envoyé');
 }
+
+// ── Sources RSS — uniquement finance/économie/digital ─────────────────────────
+// LeFaso et Burkina24 retirés — trop de contenu hors thématique
 
 const RSS_SOURCES = [
   { url: 'https://www.agenceecofin.com/feed', name: 'Agence Ecofin', category: 'Finance Afrique' },
   { url: 'https://www.financialafrik.com/feed', name: 'Financial Afrik', category: 'Finance Afrique' },
   { url: 'https://www.jeuneafrique.com/feed/rss/', name: 'Jeune Afrique', category: 'Économie Afrique' },
-  { url: 'https://lefaso.net/spip.php?page=backend', name: 'LeFaso.net', category: "Afrique de l'Ouest" },
-  { url: 'https://www.burkina24.com/feed/', name: 'Burkina24', category: "Afrique de l'Ouest" },
   { url: 'https://www.rfi.fr/fr/rss-economie', name: 'RFI Économie', category: 'Économie Internationale' },
   { url: 'https://www.latribune.fr/rss/rubriques/finance.xml', name: 'La Tribune', category: 'Finance Internationale' },
   { url: 'https://www.lesechos.fr/rss/rss_finance.xml', name: 'Les Echos', category: 'Finance Internationale' },
@@ -58,16 +51,14 @@ const GNEWS_QUERIES = [
   { q: 'entrepreneuriat startup Afrique francophone', category: 'Entrepreneuriat' },
 ];
 
-const KEYWORDS = [
-  'comptabilité', 'finance', 'bilan', 'trésorerie', 'audit', 'fiscalité',
-  'budget', 'investissement', 'rendement', 'dividende', 'fusion', 'acquisition',
-  'capital', 'private equity', 'fonds', 'valorisation', 'banque', 'BRVM',
-  'bourse', 'actions', 'BCEAO', 'UEMOA', 'microfinance', 'crédit',
-  'digital', 'numérique', 'intelligence artificielle', 'automatisation',
-  'transformation', 'fintech', 'NFC', 'paiement mobile', 'Afrique', 'Burkina',
-  'CEDEAO', 'franc CFA', 'croissance', 'développement', 'entrepreneuriat',
-  'startup', 'marketing', 'stratégie', 'crypto', 'bitcoin', 'blockchain',
-  'leadership', 'compétences', 'management',
+// Mots-clés stricts — doit contenir au moins UN de ces mots dans le titre
+const TITLE_KEYWORDS = [
+  'finance', 'comptabilité', 'banque', 'investissement', 'économie', 'bourse',
+  'BRVM', 'fintech', 'crypto', 'bitcoin', 'blockchain', 'digital', 'numérique',
+  'IA', 'intelligence artificielle', 'automatisation', 'transformation',
+  'startup', 'entrepreneuriat', 'fusion', 'acquisition', 'audit', 'fiscalité',
+  'budget', 'trésorerie', 'analyse financière', 'marché', 'capital', 'fonds',
+  'paiement', 'NFC', 'monnaie', 'dette', 'croissance', 'PIB', 'inflation',
 ];
 
 interface Article {
@@ -115,12 +106,15 @@ function cleanHtml(text: string): string {
   return text
     .replace(/<[^>]+>/g, '')
     .replace(/&amp;/g, '&').replace(/&lt;/g, '<').replace(/&gt;/g, '>')
-    .replace(/&quot;/g, '"').replace(/&#039;/g, "'").replace(/\s+/g, ' ').trim();
+    .replace(/&quot;/g, '"').replace(/&#039;/g, "'")
+    .replace(/&#\d+;/g, ' ').replace(/&[a-z]+;/g, ' ')
+    .replace(/\s+/g, ' ').trim();
 }
 
-function isRelevant(title: string, desc: string): boolean {
-  const text = (title + ' ' + desc).toLowerCase();
-  return KEYWORDS.some(kw => text.includes(kw.toLowerCase()));
+// Filtre strict sur le TITRE uniquement
+function isTitleRelevant(title: string): boolean {
+  const t = title.toLowerCase();
+  return TITLE_KEYWORDS.some(kw => t.includes(kw.toLowerCase()));
 }
 
 function getCategory(title: string, desc: string, fallback: string): string {
@@ -152,26 +146,31 @@ async function scrapeRSS(): Promise<Article[]> {
       if (!res.ok) continue;
       const xml = await res.text();
       const items = xml.match(/<item[\s\S]*?<\/item>/gi) || [];
+      let added = 0;
 
-      for (const item of items.slice(0, 8)) {
+      for (const item of items.slice(0, 15)) {
         const title = cleanHtml(extractText(item, 'title'));
         const description = cleanHtml(extractText(item, 'description'));
         const link = cleanHtml(extractText(item, 'link') || extractText(item, 'guid'));
         const pubDate = extractText(item, 'pubDate');
 
         if (!title || title.length < 10) continue;
-        if (!isRelevant(title, description)) continue;
+        // Filtre strict sur le titre
+        if (!isTitleRelevant(title)) continue;
         if (pubDate && new Date(pubDate) < weekAgo) continue;
 
         results.push({
           title,
-          description: description.slice(0, 300),
+          description: description.slice(0, 250),
           link,
           source: source.name,
           category: getCategory(title, description, source.category),
           origin: 'rss',
         });
+        added++;
+        if (added >= 5) break; // Max 5 par source
       }
+      console.log(`RSS ${source.name}: ${added} articles retenus`);
     } catch { continue; }
   }
   return results;
@@ -190,10 +189,10 @@ async function scrapeGNews(): Promise<Article[]> {
       const data = await res.json();
 
       for (const article of data.articles || []) {
-        if (!article.title || !isRelevant(article.title, article.description || '')) continue;
+        if (!article.title || !isTitleRelevant(article.title)) continue;
         results.push({
           title: article.title,
-          description: (article.description || '').slice(0, 300),
+          description: (article.description || '').slice(0, 250),
           link: article.url || '',
           source: article.source?.name || 'GNews',
           category: getCategory(article.title, article.description || '', query.category),
@@ -216,40 +215,49 @@ function mergeAndSelect(rss: Article[], gnews: Article[]): Article[] {
   });
 
   const african = unique.filter(a =>
-    ['Agence Ecofin', 'Financial Afrik', 'Jeune Afrique', 'LeFaso.net', 'Burkina24'].includes(a.source)
+    ['Agence Ecofin', 'Financial Afrik', 'Jeune Afrique'].includes(a.source)
   );
   const gnewsItems = unique.filter(a => a.origin === 'gnews');
   const other = unique.filter(a => !african.includes(a) && !gnewsItems.includes(a));
 
-  return [...african.slice(0, 8), ...gnewsItems.slice(0, 4), ...other.slice(0, 3)].slice(0, 15);
+  return [...african.slice(0, 7), ...gnewsItems.slice(0, 5), ...other.slice(0, 3)].slice(0, 15);
 }
 
 async function generateContent(trends: Article[]): Promise<GeneratedContent[]> {
   const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) {
-    console.warn('GEMINI_API_KEY manquante');
-    return [];
-  }
+  if (!apiKey) { console.warn('GEMINI_API_KEY manquante'); return []; }
 
-  // Prompt simplifié pour forcer un JSON propre
   const prompt = `Tu es expert en finance et digital Afrique francophone.
 Tu rédiges pour Samuel POODA, étudiant Finance & Comptabilité, fondateur IziCard Burkina Faso.
+Ton ton : professionnel, pédagogique, accessible, ancré dans le contexte africain.
 
-Pour chacun des ${trends.length} sujets, génère un post LinkedIn et un article blog.
+Pour chacun des ${trends.length} sujets ci-dessous, génère :
+1. Un post LinkedIn avec hook, contexte, 4 points clés ▪, prise de position 💡, question 👇, hashtags
+2. Un article blog avec titre SEO, introduction (150 mots), 3 sections (200 mots chacune), conclusion (100 mots)
 
-RÈGLES STRICTES :
-- Réponds UNIQUEMENT avec un tableau JSON valide
-- Commence directement par [ et termine par ]
-- Aucun texte avant ou après
-- Aucun backtick, aucun markdown
-- Les sauts de ligne dans les textes : utilise \\n
-- Les guillemets dans les textes : utilise \\'
+IMPORTANT : Réponds UNIQUEMENT avec un tableau JSON valide.
+Commence directement par [ et termine par ].
+Aucun texte avant ou après. Aucun backtick. Aucun markdown.
+Pour les sauts de ligne dans les valeurs JSON, utilise \\n.
 
-FORMAT EXACT à respecter :
-[{"linkedin_post":"hook\\n\\ncontexte\\n\\npoints clés:\\n▪ point1\\n▪ point2\\n\\n💡 analyse\\n\\n👇 question\\n\\n#tag1 #tag2","blog_title":"titre","blog_intro":"intro 150 mots","blog_sections":[{"title":"titre1","content":"contenu 200 mots"},{"title":"titre2","content":"contenu 200 mots"},{"title":"titre3","content":"contenu 200 mots"}],"blog_conclusion":"conclusion 100 mots","hashtags":["#Finance","#Afrique"]}]
+Format :
+[
+  {
+    "linkedin_post": "🔥 Hook\\n\\nContexte\\n\\n▪ Point 1\\n▪ Point 2\\n▪ Point 3\\n▪ Point 4\\n\\n💡 Mon analyse\\n\\n👇 Question\\n\\n#tag1 #tag2 #tag3",
+    "blog_title": "Titre SEO",
+    "blog_intro": "Introduction développée...",
+    "blog_sections": [
+      {"title": "Titre section 1", "content": "Contenu développé..."},
+      {"title": "Titre section 2", "content": "Contenu développé..."},
+      {"title": "Titre section 3", "content": "Contenu développé..."}
+    ],
+    "blog_conclusion": "Conclusion avec call to action...",
+    "hashtags": ["#Finance", "#Afrique", "#Digital"]
+  }
+]
 
-Sujets (${trends.length}) :
-${trends.map((t, i) => `${i + 1}. [${t.category}] ${t.title} — ${t.description.slice(0, 150)}`).join('\n')}`;
+Les ${trends.length} sujets :
+${trends.map((t, i) => `${i + 1}. [${t.category}] ${t.title}\nContexte: ${t.description}`).join('\n\n')}`;
 
   try {
     const res = await fetch(
@@ -262,56 +270,60 @@ ${trends.map((t, i) => `${i + 1}. [${t.category}] ${t.title} — ${t.description
           generationConfig: {
             temperature: 0.7,
             maxOutputTokens: 8192,
-            responseMimeType: 'application/json', // Force JSON response
           },
         }),
       }
     );
 
     const data = await res.json();
-    console.log('Gemini status:', res.status);
+    console.log('Gemini HTTP status:', res.status);
+
+    if (!res.ok) {
+      console.error('Gemini API error:', JSON.stringify(data));
+      return [];
+    }
 
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    console.log('Gemini raw (first 500):', text.slice(0, 500));
+    console.log('Gemini raw (300 chars):', text.slice(0, 300));
 
-    if (!text) {
-      console.error('Gemini returned empty text');
+    if (!text.trim()) {
+      console.error('Gemini returned empty text — check API key or quota');
       return [];
     }
 
     // Nettoyage robuste
     let clean = text.trim();
-    // Retirer backticks
-    clean = clean.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '');
-    // Trouver le tableau JSON
+    clean = clean.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+
     const start = clean.indexOf('[');
     const end = clean.lastIndexOf(']');
-    if (start === -1 || end === -1) {
-      console.error('No JSON array found in Gemini response');
+    if (start === -1 || end === -1 || end <= start) {
+      console.error('No valid JSON array in Gemini response. Raw:', clean.slice(0, 500));
       return [];
     }
     clean = clean.slice(start, end + 1);
 
     const parsed = JSON.parse(clean);
-    console.log(`✅ Gemini parsed: ${parsed.length} items`);
+    console.log(`✅ Gemini: ${parsed.length} items parsés`);
     return parsed;
 
   } catch (err) {
-    console.error('Gemini error:', err);
+    console.error('Gemini/parse error:', err);
     return [];
   }
 }
 
 async function saveToSupabase(trends: Article[], content: GeneratedContent[]) {
   const supabase = getSupabase();
-  const weekLabel = getWeekLabel();
-  const weekStart = getWeekStart();
+
+  // Supprimer les entrées de cette semaine avant d'insérer
+  await supabase.from('weekly_trends').delete().eq('week_start', getWeekStart());
 
   const rows = trends.map((t, i) => {
     const c = content[i];
     return {
-      week_label: weekLabel,
-      week_start: weekStart,
+      week_label: getWeekLabel(),
+      week_start: getWeekStart(),
       topic: t.title,
       category: t.category,
       source: t.source,
@@ -327,10 +339,11 @@ async function saveToSupabase(trends: Article[], content: GeneratedContent[]) {
     };
   });
 
-  console.log('Saving rows, sample linkedin_post:', rows[0]?.linkedin_post?.slice(0, 100));
+  console.log('Sample row linkedin_post:', rows[0]?.linkedin_post?.slice(0, 100) || 'EMPTY');
 
   const { error } = await supabase.from('weekly_trends').insert(rows);
-  if (error) throw new Error(`Supabase: ${error.message}`);
+  if (error) throw new Error(`Supabase insert: ${error.message}`);
+  console.log(`✅ ${rows.length} lignes sauvegardées`);
 }
 
 export async function GET(request: NextRequest) {
@@ -343,56 +356,40 @@ export async function GET(request: NextRequest) {
   }
 
   try {
-    console.log('🔄 Démarrage veille hebdomadaire...');
+    console.log('🔄 Démarrage veille...');
 
     const [rssArticles, gnewsArticles] = await Promise.all([scrapeRSS(), scrapeGNews()]);
     console.log(`RSS: ${rssArticles.length} | GNews: ${gnewsArticles.length}`);
 
     const trends = mergeAndSelect(rssArticles, gnewsArticles);
-    console.log(`Selected: ${trends.length}`);
+    console.log(`Sélectionnés: ${trends.length}`);
+    trends.forEach((t, i) => console.log(`  ${i + 1}. [${t.source}] ${t.title.slice(0, 60)}`));
 
     if (trends.length === 0) {
       return NextResponse.json({ success: false, message: 'Aucun article pertinent.' });
     }
 
     const content = await generateContent(trends);
-    console.log(`Content generated: ${content.length}`);
-
-    // Vider les anciens enregistrements de cette semaine avant d'insérer
-    const supabase = getSupabase();
-    await supabase
-      .from('weekly_trends')
-      .delete()
-      .eq('week_start', getWeekStart());
+    console.log(`Content: ${content.length} items`);
 
     await saveToSupabase(trends, content);
-    console.log('✅ Saved to Supabase');
 
     // Email
     const dashboardUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard`;
-    const categories = [...new Set(trends.map(t => t.category))].slice(0, 6);
-
     await sendEmail(
       'poodasamuelpro@gmail.com',
       `📊 ${trends.length} tendances prêtes — ${getWeekLabel()}`,
-      `
-        <div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;">
-          <h1 style="font-size:22px;color:#111827;margin:0 0 4px;">📊 Tes tendances sont prêtes</h1>
-          <p style="color:#6b7280;font-size:14px;margin:0 0 24px;">${getWeekLabel()}</p>
-          <p style="font-size:15px;color:#374151;margin:0 0 16px;">
-            <strong>${trends.length} sujets</strong> — ${categories.join(', ')}
-          </p>
-          <a href="${dashboardUrl}" style="display:inline-block;background:#111827;color:white;padding:13px 26px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;">
-            Voir mes tendances →
-          </a>
-          <ul style="font-size:13px;color:#6b7280;padding-left:16px;margin-top:24px;line-height:1.8;">
-            ${trends.slice(0, 5).map(t => `<li>${t.title.slice(0, 72)}${t.title.length > 72 ? '…' : ''}</li>`).join('')}
-            ${trends.length > 5 ? `<li style="color:#9ca3af;">+ ${trends.length - 5} autres…</li>` : ''}
-          </ul>
-        </div>
-      `
+      `<div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;">
+        <h1 style="font-size:22px;color:#111827;margin:0 0 4px;">📊 Tes tendances sont prêtes</h1>
+        <p style="color:#6b7280;font-size:14px;margin:0 0 24px;">${getWeekLabel()}</p>
+        <p style="font-size:15px;color:#374151;margin:0 0 20px;"><strong>${trends.length} sujets</strong> analysés et rédigés.</p>
+        <a href="${dashboardUrl}" style="display:inline-block;background:#111827;color:white;padding:13px 26px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;">Voir mes tendances →</a>
+        <ul style="font-size:13px;color:#6b7280;padding-left:16px;margin-top:24px;line-height:1.8;">
+          ${trends.slice(0, 5).map(t => `<li>${t.title.slice(0, 72)}${t.title.length > 72 ? '…' : ''}</li>`).join('')}
+          ${trends.length > 5 ? `<li style="color:#9ca3af;">+ ${trends.length - 5} autres…</li>` : ''}
+        </ul>
+      </div>`
     );
-    console.log('✅ Email envoyé');
 
     return NextResponse.json({
       success: true,
