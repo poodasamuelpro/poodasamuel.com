@@ -1,15 +1,9 @@
 // app/api/cron/weekly-trends/route.ts
-//
-// IMPORTANT : Supabase et Resend sont initialisés en lazy (dans les fonctions)
-// et non au niveau module — pour éviter que le build Vercel plante
-// quand les variables d'environnement ne sont pas encore configurées.
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
 
 export const maxDuration = 60;
-
-// ── Clients lazy ──────────────────────────────────────────────────────────────
 
 function getSupabase() {
   return createClient(
@@ -18,29 +12,30 @@ function getSupabase() {
   );
 }
 
-// Resend via fetch direct — pas d'import SDK
 async function sendEmail(to: string, subject: string, html: string) {
   const apiKey = process.env.RESEND_API_KEY;
   if (!apiKey) {
-    console.warn('RESEND_API_KEY manquante — email ignoré');
+    console.warn('RESEND_API_KEY manquante');
     return;
   }
-  await fetch('https://api.resend.com/emails', {
+  const res = await fetch('https://api.resend.com/emails', {
     method: 'POST',
     headers: {
       'Authorization': `Bearer ${apiKey}`,
       'Content-Type': 'application/json',
     },
     body: JSON.stringify({
-      from: 'Portfolio Bot <onboarding@resend.dev>',
+      from: 'Portfolio Bot <contact@poodasamuelpro.izicardouaga.com>',
       to: [to],
       subject,
       html,
     }),
   });
+  if (!res.ok) {
+    const err = await res.text();
+    console.error('Resend error:', err);
+  }
 }
-
-// ── Sources RSS ───────────────────────────────────────────────────────────────
 
 const RSS_SOURCES = [
   { url: 'https://www.agenceecofin.com/feed', name: 'Agence Ecofin', category: 'Finance Afrique' },
@@ -75,8 +70,6 @@ const KEYWORDS = [
   'leadership', 'compétences', 'management',
 ];
 
-// ── Types ─────────────────────────────────────────────────────────────────────
-
 interface Article {
   title: string;
   description: string;
@@ -94,8 +87,6 @@ interface GeneratedContent {
   blog_conclusion: string;
   hashtags: string[];
 }
-
-// ── Helpers ───────────────────────────────────────────────────────────────────
 
 function getWeekLabel(): string {
   const now = new Date();
@@ -147,8 +138,6 @@ function getCategory(title: string, desc: string, fallback: string): string {
   return fallback;
 }
 
-// ── Scraping RSS ──────────────────────────────────────────────────────────────
-
 async function scrapeRSS(): Promise<Article[]> {
   const results: Article[] = [];
   const weekAgo = new Date();
@@ -161,7 +150,6 @@ async function scrapeRSS(): Promise<Article[]> {
         signal: AbortSignal.timeout(8000),
       });
       if (!res.ok) continue;
-
       const xml = await res.text();
       const items = xml.match(/<item[\s\S]*?<\/item>/gi) || [];
 
@@ -184,14 +172,10 @@ async function scrapeRSS(): Promise<Article[]> {
           origin: 'rss',
         });
       }
-    } catch {
-      continue;
-    }
+    } catch { continue; }
   }
   return results;
 }
-
-// ── GNews ─────────────────────────────────────────────────────────────────────
 
 async function scrapeGNews(): Promise<Article[]> {
   const results: Article[] = [];
@@ -216,14 +200,10 @@ async function scrapeGNews(): Promise<Article[]> {
           origin: 'gnews',
         });
       }
-    } catch {
-      continue;
-    }
+    } catch { continue; }
   }
   return results;
 }
-
-// ── Fusion ────────────────────────────────────────────────────────────────────
 
 function mergeAndSelect(rss: Article[], gnews: Article[]): Article[] {
   const all = [...rss, ...gnews];
@@ -244,8 +224,6 @@ function mergeAndSelect(rss: Article[], gnews: Article[]): Article[] {
   return [...african.slice(0, 8), ...gnewsItems.slice(0, 4), ...other.slice(0, 3)].slice(0, 15);
 }
 
-// ── Gemini ────────────────────────────────────────────────────────────────────
-
 async function generateContent(trends: Article[]): Promise<GeneratedContent[]> {
   const apiKey = process.env.GEMINI_API_KEY;
   if (!apiKey) {
@@ -253,86 +231,107 @@ async function generateContent(trends: Article[]): Promise<GeneratedContent[]> {
     return [];
   }
 
-  const prompt = `Tu es un expert en finance, comptabilité, transformation digitale et entrepreneuriat en Afrique francophone.
-Tu rédiges du contenu pour Samuel POODA : étudiant en Finance & Comptabilité, fondateur d'IziCard (solution NFC Burkina Faso), basé à Casablanca.
-Ton ton : professionnel, pédagogique, accessible. Jamais arrogant.
+  // Prompt simplifié pour forcer un JSON propre
+  const prompt = `Tu es expert en finance et digital Afrique francophone.
+Tu rédiges pour Samuel POODA, étudiant Finance & Comptabilité, fondateur IziCard Burkina Faso.
 
-Pour chacun des ${trends.length} sujets, génère :
+Pour chacun des ${trends.length} sujets, génère un post LinkedIn et un article blog.
 
-1. POST LINKEDIN :
-🔥 [Hook fort 1-2 lignes]
+RÈGLES STRICTES :
+- Réponds UNIQUEMENT avec un tableau JSON valide
+- Commence directement par [ et termine par ]
+- Aucun texte avant ou après
+- Aucun backtick, aucun markdown
+- Les sauts de ligne dans les textes : utilise \\n
+- Les guillemets dans les textes : utilise \\'
 
-[Contexte 2-3 lignes]
+FORMAT EXACT à respecter :
+[{"linkedin_post":"hook\\n\\ncontexte\\n\\npoints clés:\\n▪ point1\\n▪ point2\\n\\n💡 analyse\\n\\n👇 question\\n\\n#tag1 #tag2","blog_title":"titre","blog_intro":"intro 150 mots","blog_sections":[{"title":"titre1","content":"contenu 200 mots"},{"title":"titre2","content":"contenu 200 mots"},{"title":"titre3","content":"contenu 200 mots"}],"blog_conclusion":"conclusion 100 mots","hashtags":["#Finance","#Afrique"]}]
 
-Les points clés :
-▪️ Point 1
-▪️ Point 2
-▪️ Point 3
-▪️ Point 4
-
-💡 [Prise de position 1-2 lignes]
-
-👇 [Question engageante]
-
-#hashtags
-
-2. ARTICLE BLOG : titre SEO, intro 150 mots, 3 sections 200 mots, conclusion 100 mots.
-
-Réponds UNIQUEMENT en JSON valide sans markdown :
-[{"linkedin_post":"...","blog_title":"...","blog_intro":"...","blog_sections":[{"title":"...","content":"..."}],"blog_conclusion":"...","hashtags":["#Finance"]}]
-
-Sujets :
-${trends.map((t, i) => `${i + 1}. [${t.category}] ${t.title}\nContexte: ${t.description}`).join('\n\n')}`;
-
-  const res = await fetch(
-    `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
-    {
-      method: 'POST',
-      headers: { 'Content-Type': 'application/json' },
-      body: JSON.stringify({
-        contents: [{ parts: [{ text: prompt }] }],
-        generationConfig: { temperature: 0.75, maxOutputTokens: 8192 },
-      }),
-    }
-  );
-
-  const data = await res.json();
-  const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '[]';
-  const clean = text.replace(/```json|```/g, '').trim();
+Sujets (${trends.length}) :
+${trends.map((t, i) => `${i + 1}. [${t.category}] ${t.title} — ${t.description.slice(0, 150)}`).join('\n')}`;
 
   try {
-    return JSON.parse(clean);
-  } catch {
+    const res = await fetch(
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({
+          contents: [{ parts: [{ text: prompt }] }],
+          generationConfig: {
+            temperature: 0.7,
+            maxOutputTokens: 8192,
+            responseMimeType: 'application/json', // Force JSON response
+          },
+        }),
+      }
+    );
+
+    const data = await res.json();
+    console.log('Gemini status:', res.status);
+
+    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+    console.log('Gemini raw (first 500):', text.slice(0, 500));
+
+    if (!text) {
+      console.error('Gemini returned empty text');
+      return [];
+    }
+
+    // Nettoyage robuste
+    let clean = text.trim();
+    // Retirer backticks
+    clean = clean.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '');
+    // Trouver le tableau JSON
+    const start = clean.indexOf('[');
+    const end = clean.lastIndexOf(']');
+    if (start === -1 || end === -1) {
+      console.error('No JSON array found in Gemini response');
+      return [];
+    }
+    clean = clean.slice(start, end + 1);
+
+    const parsed = JSON.parse(clean);
+    console.log(`✅ Gemini parsed: ${parsed.length} items`);
+    return parsed;
+
+  } catch (err) {
+    console.error('Gemini error:', err);
     return [];
   }
 }
 
-// ── Supabase save ─────────────────────────────────────────────────────────────
-
 async function saveToSupabase(trends: Article[], content: GeneratedContent[]) {
   const supabase = getSupabase();
-  const rows = trends.map((t, i) => ({
-    week_label: getWeekLabel(),
-    week_start: getWeekStart(),
-    topic: t.title,
-    category: t.category,
-    source: t.source,
-    source_url: t.link,
-    summary: t.description,
-    linkedin_post: content[i]?.linkedin_post || '',
-    blog_title: content[i]?.blog_title || t.title,
-    blog_intro: content[i]?.blog_intro || '',
-    blog_sections: content[i]?.blog_sections || [],
-    blog_conclusion: content[i]?.blog_conclusion || '',
-    hashtags: content[i]?.hashtags || [],
-    is_published: false,
-  }));
+  const weekLabel = getWeekLabel();
+  const weekStart = getWeekStart();
+
+  const rows = trends.map((t, i) => {
+    const c = content[i];
+    return {
+      week_label: weekLabel,
+      week_start: weekStart,
+      topic: t.title,
+      category: t.category,
+      source: t.source,
+      source_url: t.link,
+      summary: t.description,
+      linkedin_post: c?.linkedin_post || '',
+      blog_title: c?.blog_title || t.title,
+      blog_intro: c?.blog_intro || '',
+      blog_sections: c?.blog_sections || [],
+      blog_conclusion: c?.blog_conclusion || '',
+      hashtags: c?.hashtags || [],
+      is_published: false,
+    };
+  });
+
+  console.log('Saving rows, sample linkedin_post:', rows[0]?.linkedin_post?.slice(0, 100));
 
   const { error } = await supabase.from('weekly_trends').insert(rows);
   if (error) throw new Error(`Supabase: ${error.message}`);
 }
-
-// ── Handler ───────────────────────────────────────────────────────────────────
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
@@ -344,16 +343,32 @@ export async function GET(request: NextRequest) {
   }
 
   try {
+    console.log('🔄 Démarrage veille hebdomadaire...');
+
     const [rssArticles, gnewsArticles] = await Promise.all([scrapeRSS(), scrapeGNews()]);
+    console.log(`RSS: ${rssArticles.length} | GNews: ${gnewsArticles.length}`);
+
     const trends = mergeAndSelect(rssArticles, gnewsArticles);
+    console.log(`Selected: ${trends.length}`);
 
     if (trends.length === 0) {
       return NextResponse.json({ success: false, message: 'Aucun article pertinent.' });
     }
 
     const content = await generateContent(trends);
-    await saveToSupabase(trends, content);
+    console.log(`Content generated: ${content.length}`);
 
+    // Vider les anciens enregistrements de cette semaine avant d'insérer
+    const supabase = getSupabase();
+    await supabase
+      .from('weekly_trends')
+      .delete()
+      .eq('week_start', getWeekStart());
+
+    await saveToSupabase(trends, content);
+    console.log('✅ Saved to Supabase');
+
+    // Email
     const dashboardUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard`;
     const categories = [...new Set(trends.map(t => t.category))].slice(0, 6);
 
@@ -365,7 +380,7 @@ export async function GET(request: NextRequest) {
           <h1 style="font-size:22px;color:#111827;margin:0 0 4px;">📊 Tes tendances sont prêtes</h1>
           <p style="color:#6b7280;font-size:14px;margin:0 0 24px;">${getWeekLabel()}</p>
           <p style="font-size:15px;color:#374151;margin:0 0 16px;">
-            <strong>${trends.length} sujets</strong> analysés et rédigés — ${categories.join(', ')}
+            <strong>${trends.length} sujets</strong> — ${categories.join(', ')}
           </p>
           <a href="${dashboardUrl}" style="display:inline-block;background:#111827;color:white;padding:13px 26px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;">
             Voir mes tendances →
@@ -377,6 +392,7 @@ export async function GET(request: NextRequest) {
         </div>
       `
     );
+    console.log('✅ Email envoyé');
 
     return NextResponse.json({
       success: true,
