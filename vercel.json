@@ -13,7 +13,7 @@
   "crons": [
     {
       "path": "/api/cron/weekly-trends",
-      "schedule": "0 20 * * 0"
+      "schedule": "0 20 1,6,11,16,21,26 * *"
     }
   ]
 }
