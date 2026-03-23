@@ -1,7 +1,9 @@
 // app/api/cron/weekly-trends/route.ts
 //
-// Modèle Gemini : gemini-2.5-flash (gratuit, 250 req/jour, mars 2026)
-// gemini-1.5-flash et gemini-2.0-flash sont dépréciés et retirés
+// 2 appels Gemini séparés :
+// - Appel 1 : génère les posts LinkedIn
+// - Appel 2 : génère les articles blog
+// Plus fiable — prompts plus courts = JSON plus propre
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
@@ -53,15 +55,15 @@ const GNEWS_QUERIES = [
   { q: 'entrepreneuriat startup Afrique francophone', category: 'Entrepreneuriat' },
 ];
 
-// Mots-clés stricts — filtre sur le titre uniquement
 const TITLE_KEYWORDS = [
   'finance', 'comptabilité', 'banque', 'investissement', 'économie', 'bourse',
   'BRVM', 'fintech', 'crypto', 'bitcoin', 'blockchain', 'digital', 'numérique',
   'IA', 'intelligence artificielle', 'automatisation', 'transformation',
   'startup', 'entrepreneuriat', 'fusion', 'acquisition', 'audit', 'fiscalité',
-  'budget', 'trésorerie', 'analyse financière', 'marché', 'capital', 'fonds',
-  'paiement', 'NFC', 'monnaie', 'dette', 'croissance', 'PIB', 'inflation',
-  'sukuk', 'inclusion financière', 'microfinance', 'stablecoin', 'valorisation',
+  'budget', 'trésorerie', 'marché', 'capital', 'fonds', 'paiement', 'NFC',
+  'monnaie', 'dette', 'croissance', 'PIB', 'inflation', 'sukuk',
+  'inclusion financière', 'microfinance', 'stablecoin', 'valorisation',
+  'marketing', 'stratégie', 'leadership', 'management', 'développement',
 ];
 
 interface Article {
@@ -73,13 +75,16 @@ interface Article {
   origin: 'rss' | 'gnews';
 }
 
-interface GeneratedContent {
+interface LinkedInPost {
   linkedin_post: string;
+  hashtags: string[];
+}
+
+interface BlogPost {
   blog_title: string;
   blog_intro: string;
   blog_sections: Array<{ title: string; content: string }>;
   blog_conclusion: string;
-  hashtags: string[];
 }
 
 function getWeekLabel(): string {
@@ -126,13 +131,143 @@ function getCategory(title: string, desc: string, fallback: string): string {
   if (t.includes('fintech') || t.includes('paiement') || t.includes('inclusion financière')) return 'Fintech & Paiement';
   if (t.includes('fusion') || t.includes('acquisition') || t.includes('sukuk')) return 'M&A & Capital';
   if (t.includes('intelligence artificielle') || t.includes('automatisation')) return 'IA & Automatisation';
-  if (t.includes('digital') || t.includes('transformation')) return 'Transformation Digitale';
+  if (t.includes('digital') || t.includes('transformation') || t.includes('numérique')) return 'Transformation Digitale';
   if (t.includes('comptabilité') || t.includes('audit') || t.includes('fiscalité')) return 'Comptabilité & Audit';
   if (t.includes('banque') || t.includes('crédit') || t.includes('microfinance')) return 'Banque & Finance';
   if (t.includes('startup') || t.includes('entrepreneuriat')) return 'Entrepreneuriat';
-  if (t.includes('marketing')) return 'Marketing & Stratégie';
+  if (t.includes('marketing') || t.includes('stratégie')) return 'Marketing & Stratégie';
+  if (t.includes('leadership') || t.includes('management')) return 'Leadership & Management';
   return fallback;
 }
+
+// ── Gemini helper ─────────────────────────────────────────────────────────────
+
+async function callGemini(prompt: string, label: string): Promise<string> {
+  const apiKey = process.env.GEMINI_API_KEY;
+  if (!apiKey) throw new Error('GEMINI_API_KEY manquante');
+
+  // Essai 1 : gemini-2.5-flash
+  // Essai 2 : gemini-2.0-flash-lite (fallback)
+  const models = ['gemini-2.5-flash', 'gemini-2.0-flash-lite'];
+
+  for (const model of models) {
+    try {
+      console.log(`Gemini [${label}] essai avec ${model}...`);
+      const res = await fetch(
+        `https://generativelanguage.googleapis.com/v1beta/models/${model}:generateContent?key=${apiKey}`,
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify({
+            contents: [{ parts: [{ text: prompt }] }],
+            generationConfig: { temperature: 0.7, maxOutputTokens: 8192 },
+          }),
+        }
+      );
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        console.warn(`${model} erreur ${res.status}:`, data.error?.message);
+        continue; // essai suivant
+      }
+
+      const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
+      if (!text.trim()) {
+        console.warn(`${model} retourne vide`);
+        continue;
+      }
+
+      console.log(`✅ ${model} [${label}] OK — ${text.length} chars`);
+      return text;
+
+    } catch (err) {
+      console.warn(`${model} exception:`, err);
+      continue;
+    }
+  }
+
+  throw new Error(`Tous les modèles Gemini ont échoué pour [${label}]`);
+}
+
+function parseJsonArray(text: string, label: string): unknown[] {
+  let clean = text.trim();
+  clean = clean.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
+  const start = clean.indexOf('[');
+  const end = clean.lastIndexOf(']');
+  if (start === -1 || end === -1 || end <= start) {
+    console.error(`[${label}] Pas de tableau JSON. Raw:`, clean.slice(0, 300));
+    return [];
+  }
+  try {
+    const parsed = JSON.parse(clean.slice(start, end + 1));
+    console.log(`✅ [${label}] ${parsed.length} items parsés`);
+    return parsed;
+  } catch (err) {
+    console.error(`[${label}] JSON parse error:`, err);
+    return [];
+  }
+}
+
+// ── Appel 1 : Posts LinkedIn ──────────────────────────────────────────────────
+
+async function generateLinkedIn(trends: Article[]): Promise<LinkedInPost[]> {
+  const prompt = `Tu es expert en finance et digital Afrique francophone.
+Tu rédiges pour Samuel POODA, étudiant Finance & Comptabilité, fondateur IziCard Burkina Faso.
+Ton ton : professionnel, pédagogique, accessible.
+
+Génère ${trends.length} posts LinkedIn — un par sujet.
+
+Chaque post doit avoir :
+- Hook accrocheur 🔥 (1-2 lignes)
+- Contexte (2-3 lignes)
+- 4 points clés avec ▪
+- Analyse personnelle 💡
+- Question pour les commentaires 👇
+- 6-8 hashtags
+
+RÈGLE : Réponds UNIQUEMENT avec un tableau JSON. Commence par [ et termine par ].
+Aucun texte avant ou après. Aucun backtick.
+Sauts de ligne : \\n
+
+Format :
+[{"linkedin_post":"🔥 Hook\\n\\nContexte\\n\\n▪ Point 1\\n▪ Point 2\\n▪ Point 3\\n▪ Point 4\\n\\n💡 Analyse\\n\\n👇 Question\\n\\n#tag1 #tag2","hashtags":["#Finance","#Afrique"]}]
+
+Sujets :
+${trends.map((t, i) => `${i + 1}. [${t.category}] ${t.title}\nContexte: ${t.description}`).join('\n\n')}`;
+
+  const text = await callGemini(prompt, 'LinkedIn');
+  return parseJsonArray(text, 'LinkedIn') as LinkedInPost[];
+}
+
+// ── Appel 2 : Articles Blog ───────────────────────────────────────────────────
+
+async function generateBlog(trends: Article[]): Promise<BlogPost[]> {
+  const prompt = `Tu es expert en finance et digital Afrique francophone.
+Tu rédiges pour Samuel POODA, étudiant Finance & Comptabilité, fondateur IziCard Burkina Faso.
+
+Génère ${trends.length} articles de blog — un par sujet.
+
+Chaque article doit avoir :
+- Titre SEO accrocheur
+- Introduction développée (150 mots)
+- 3 sections avec titre et contenu (200 mots chacune)
+- Conclusion avec call to action (100 mots)
+
+RÈGLE : Réponds UNIQUEMENT avec un tableau JSON. Commence par [ et termine par ].
+Aucun texte avant ou après. Aucun backtick.
+
+Format :
+[{"blog_title":"Titre SEO","blog_intro":"Introduction...","blog_sections":[{"title":"Section 1","content":"Contenu..."},{"title":"Section 2","content":"Contenu..."},{"title":"Section 3","content":"Contenu..."}],"blog_conclusion":"Conclusion..."}]
+
+Sujets :
+${trends.map((t, i) => `${i + 1}. [${t.category}] ${t.title}\nContexte: ${t.description}`).join('\n\n')}`;
+
+  const text = await callGemini(prompt, 'Blog');
+  return parseJsonArray(text, 'Blog') as BlogPost[];
+}
+
+// ── Scraping ──────────────────────────────────────────────────────────────────
 
 async function scrapeRSS(): Promise<Article[]> {
   const results: Article[] = [];
@@ -171,7 +306,7 @@ async function scrapeRSS(): Promise<Article[]> {
         added++;
         if (added >= 5) break;
       }
-      console.log(`RSS ${source.name}: ${added} articles retenus`);
+      console.log(`RSS ${source.name}: ${added} articles`);
     } catch { continue; }
   }
   return results;
@@ -221,90 +356,19 @@ function mergeAndSelect(rss: Article[], gnews: Article[]): Article[] {
   return [...african.slice(0, 7), ...gnewsItems.slice(0, 5), ...other.slice(0, 3)].slice(0, 15);
 }
 
-async function generateContent(trends: Article[]): Promise<GeneratedContent[]> {
-  const apiKey = process.env.GEMINI_API_KEY;
-  if (!apiKey) { console.warn('GEMINI_API_KEY manquante'); return []; }
+// ── Sauvegarde ────────────────────────────────────────────────────────────────
 
-  const prompt = `Tu es expert en finance et digital Afrique francophone.
-Tu rédiges pour Samuel POODA, étudiant Finance & Comptabilité, fondateur IziCard Burkina Faso.
-Ton ton : professionnel, pédagogique, accessible, ancré dans le contexte africain.
-
-Pour chacun des ${trends.length} sujets ci-dessous, génère :
-1. Un post LinkedIn avec hook 🔥, contexte, 4 points clés ▪, analyse 💡, question 👇, hashtags
-2. Un article blog avec titre SEO, introduction (150 mots), 3 sections (200 mots), conclusion (100 mots)
-
-RÈGLE ABSOLUE : Réponds UNIQUEMENT avec un tableau JSON valide.
-- Commence par [ et termine par ]
-- Aucun texte avant ou après
-- Aucun backtick, aucun markdown
-- Sauts de ligne dans les valeurs : utilise \\n
-
-Format exact :
-[{"linkedin_post":"🔥 Hook\\n\\nContexte\\n\\n▪ Point 1\\n▪ Point 2\\n▪ Point 3\\n▪ Point 4\\n\\n💡 Analyse\\n\\n👇 Question\\n\\n#tag1 #tag2","blog_title":"Titre","blog_intro":"Intro...","blog_sections":[{"title":"S1","content":"..."},{"title":"S2","content":"..."},{"title":"S3","content":"..."}],"blog_conclusion":"Conclusion...","hashtags":["#Finance","#Afrique"]}]
-
-Sujets :
-${trends.map((t, i) => `${i + 1}. [${t.category}] ${t.title}\nContexte: ${t.description}`).join('\n\n')}`;
-
-  try {
-    const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
-      {
-        method: 'POST',
-        headers: { 'Content-Type': 'application/json' },
-        body: JSON.stringify({
-          contents: [{ parts: [{ text: prompt }] }],
-          generationConfig: {
-            temperature: 0.7,
-            maxOutputTokens: 8192,
-          },
-        }),
-      }
-    );
-
-    const data = await res.json();
-    console.log('Gemini status:', res.status);
-
-    if (!res.ok) {
-      console.error('Gemini API error:', JSON.stringify(data));
-      return [];
-    }
-
-    const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    console.log('Gemini raw (200 chars):', text.slice(0, 200));
-
-    if (!text.trim()) {
-      console.error('Gemini returned empty text');
-      return [];
-    }
-
-    // Nettoyage robuste
-    let clean = text.trim();
-    clean = clean.replace(/^```json\s*/i, '').replace(/^```\s*/i, '').replace(/\s*```$/i, '').trim();
-
-    const start = clean.indexOf('[');
-    const end = clean.lastIndexOf(']');
-    if (start === -1 || end === -1 || end <= start) {
-      console.error('No JSON array found. Raw:', clean.slice(0, 300));
-      return [];
-    }
-    clean = clean.slice(start, end + 1);
-
-    const parsed = JSON.parse(clean);
-    console.log(`✅ Gemini: ${parsed.length} items parsés`);
-    return parsed;
-
-  } catch (err) {
-    console.error('Gemini/parse error:', err);
-    return [];
-  }
-}
-
-async function saveToSupabase(trends: Article[], content: GeneratedContent[]) {
+async function saveToSupabase(
+  trends: Article[],
+  linkedinPosts: LinkedInPost[],
+  blogPosts: BlogPost[]
+) {
   const supabase = getSupabase();
   await supabase.from('weekly_trends').delete().eq('week_start', getWeekStart());
 
   const rows = trends.map((t, i) => {
-    const c = content[i];
+    const li = linkedinPosts[i];
+    const bl = blogPosts[i];
     return {
       week_label: getWeekLabel(),
       week_start: getWeekStart(),
@@ -313,22 +377,25 @@ async function saveToSupabase(trends: Article[], content: GeneratedContent[]) {
       source: t.source,
       source_url: t.link,
       summary: t.description,
-      linkedin_post: c?.linkedin_post || '',
-      blog_title: c?.blog_title || t.title,
-      blog_intro: c?.blog_intro || '',
-      blog_sections: c?.blog_sections || [],
-      blog_conclusion: c?.blog_conclusion || '',
-      hashtags: c?.hashtags || [],
+      linkedin_post: li?.linkedin_post || '',
+      blog_title: bl?.blog_title || t.title,
+      blog_intro: bl?.blog_intro || '',
+      blog_sections: bl?.blog_sections || [],
+      blog_conclusion: bl?.blog_conclusion || '',
+      hashtags: li?.hashtags || [],
       is_published: false,
     };
   });
 
-  console.log('Sample linkedin_post:', rows[0]?.linkedin_post?.slice(0, 100) || 'EMPTY');
+  console.log('Sample linkedin:', rows[0]?.linkedin_post?.slice(0, 80) || 'EMPTY');
+  console.log('Sample blog_title:', rows[0]?.blog_title || 'EMPTY');
 
   const { error } = await supabase.from('weekly_trends').insert(rows);
   if (error) throw new Error(`Supabase: ${error.message}`);
   console.log(`✅ ${rows.length} lignes sauvegardées`);
 }
+
+// ── Handler ───────────────────────────────────────────────────────────────────
 
 export async function GET(request: NextRequest) {
   const authHeader = request.headers.get('authorization');
@@ -342,6 +409,7 @@ export async function GET(request: NextRequest) {
   try {
     console.log('🔄 Démarrage veille...');
 
+    // Scraping
     const [rssArticles, gnewsArticles] = await Promise.all([scrapeRSS(), scrapeGNews()]);
     console.log(`RSS: ${rssArticles.length} | GNews: ${gnewsArticles.length}`);
 
@@ -353,11 +421,17 @@ export async function GET(request: NextRequest) {
       return NextResponse.json({ success: false, message: 'Aucun article pertinent.' });
     }
 
-    const content = await generateContent(trends);
-    console.log(`Content: ${content.length} items`);
+    // 2 appels Gemini séparés
+    console.log('🤖 Appel Gemini 1/2 — LinkedIn...');
+    const linkedinPosts = await generateLinkedIn(trends);
 
-    await saveToSupabase(trends, content);
+    console.log('🤖 Appel Gemini 2/2 — Blog...');
+    const blogPosts = await generateBlog(trends);
 
+    // Sauvegarde
+    await saveToSupabase(trends, linkedinPosts, blogPosts);
+
+    // Email
     const dashboardUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard`;
     await sendEmail(
       'poodasamuelpro@gmail.com',
@@ -365,8 +439,12 @@ export async function GET(request: NextRequest) {
       `<div style="font-family:sans-serif;max-width:560px;margin:0 auto;padding:32px 24px;background:#fff;border:1px solid #e5e7eb;border-radius:12px;">
         <h1 style="font-size:22px;color:#111827;margin:0 0 4px;">📊 Tes tendances sont prêtes</h1>
         <p style="color:#6b7280;font-size:14px;margin:0 0 24px;">${getWeekLabel()}</p>
-        <p style="font-size:15px;color:#374151;margin:0 0 20px;"><strong>${trends.length} sujets</strong> analysés et rédigés.</p>
-        <a href="${dashboardUrl}" style="display:inline-block;background:#111827;color:white;padding:13px 26px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;">Voir mes tendances →</a>
+        <p style="font-size:15px;color:#374151;margin:0 0 20px;">
+          <strong>${trends.length} sujets</strong> — ${linkedinPosts.length} posts LinkedIn + ${blogPosts.length} articles blog générés.
+        </p>
+        <a href="${dashboardUrl}" style="display:inline-block;background:#111827;color:white;padding:13px 26px;border-radius:8px;text-decoration:none;font-size:14px;font-weight:600;">
+          Voir mes tendances →
+        </a>
         <ul style="font-size:13px;color:#6b7280;padding-left:16px;margin-top:24px;line-height:1.8;">
           ${trends.slice(0, 5).map(t => `<li>${t.title.slice(0, 72)}${t.title.length > 72 ? '…' : ''}</li>`).join('')}
           ${trends.length > 5 ? `<li style="color:#9ca3af;">+ ${trends.length - 5} autres…</li>` : ''}
@@ -378,7 +456,8 @@ export async function GET(request: NextRequest) {
       success: true,
       week: getWeekLabel(),
       selected: trends.length,
-      contentGenerated: content.length,
+      linkedinGenerated: linkedinPosts.length,
+      blogGenerated: blogPosts.length,
     });
 
   } catch (error) {
