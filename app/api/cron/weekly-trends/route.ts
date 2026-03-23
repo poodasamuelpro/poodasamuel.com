@@ -1,4 +1,7 @@
 // app/api/cron/weekly-trends/route.ts
+//
+// Modèle Gemini : gemini-2.5-flash (gratuit, 250 req/jour, mars 2026)
+// gemini-1.5-flash et gemini-2.0-flash sont dépréciés et retirés
 
 import { NextRequest, NextResponse } from 'next/server';
 import { createClient } from '@supabase/supabase-js';
@@ -29,8 +32,7 @@ async function sendEmail(to: string, subject: string, html: string) {
   else console.log('✅ Email envoyé');
 }
 
-// ── Sources RSS — uniquement finance/économie/digital ─────────────────────────
-// LeFaso et Burkina24 retirés — trop de contenu hors thématique
+// ── Sources RSS ───────────────────────────────────────────────────────────────
 
 const RSS_SOURCES = [
   { url: 'https://www.agenceecofin.com/feed', name: 'Agence Ecofin', category: 'Finance Afrique' },
@@ -51,7 +53,7 @@ const GNEWS_QUERIES = [
   { q: 'entrepreneuriat startup Afrique francophone', category: 'Entrepreneuriat' },
 ];
 
-// Mots-clés stricts — doit contenir au moins UN de ces mots dans le titre
+// Mots-clés stricts — filtre sur le titre uniquement
 const TITLE_KEYWORDS = [
   'finance', 'comptabilité', 'banque', 'investissement', 'économie', 'bourse',
   'BRVM', 'fintech', 'crypto', 'bitcoin', 'blockchain', 'digital', 'numérique',
@@ -59,6 +61,7 @@ const TITLE_KEYWORDS = [
   'startup', 'entrepreneuriat', 'fusion', 'acquisition', 'audit', 'fiscalité',
   'budget', 'trésorerie', 'analyse financière', 'marché', 'capital', 'fonds',
   'paiement', 'NFC', 'monnaie', 'dette', 'croissance', 'PIB', 'inflation',
+  'sukuk', 'inclusion financière', 'microfinance', 'stablecoin', 'valorisation',
 ];
 
 interface Article {
@@ -111,7 +114,6 @@ function cleanHtml(text: string): string {
     .replace(/\s+/g, ' ').trim();
 }
 
-// Filtre strict sur le TITRE uniquement
 function isTitleRelevant(title: string): boolean {
   const t = title.toLowerCase();
   return TITLE_KEYWORDS.some(kw => t.includes(kw.toLowerCase()));
@@ -120,13 +122,13 @@ function isTitleRelevant(title: string): boolean {
 function getCategory(title: string, desc: string, fallback: string): string {
   const t = (title + ' ' + desc).toLowerCase();
   if (t.includes('brvm') || t.includes('bourse')) return 'Bourse & Marchés Africains';
-  if (t.includes('crypto') || t.includes('bitcoin') || t.includes('blockchain')) return 'Crypto & Blockchain';
-  if (t.includes('fintech') || t.includes('paiement')) return 'Fintech & Paiement';
-  if (t.includes('fusion') || t.includes('acquisition')) return 'M&A & Capital';
+  if (t.includes('crypto') || t.includes('bitcoin') || t.includes('blockchain') || t.includes('stablecoin')) return 'Crypto & Blockchain';
+  if (t.includes('fintech') || t.includes('paiement') || t.includes('inclusion financière')) return 'Fintech & Paiement';
+  if (t.includes('fusion') || t.includes('acquisition') || t.includes('sukuk')) return 'M&A & Capital';
   if (t.includes('intelligence artificielle') || t.includes('automatisation')) return 'IA & Automatisation';
   if (t.includes('digital') || t.includes('transformation')) return 'Transformation Digitale';
-  if (t.includes('comptabilité') || t.includes('audit')) return 'Comptabilité & Audit';
-  if (t.includes('banque') || t.includes('crédit')) return 'Banque & Finance';
+  if (t.includes('comptabilité') || t.includes('audit') || t.includes('fiscalité')) return 'Comptabilité & Audit';
+  if (t.includes('banque') || t.includes('crédit') || t.includes('microfinance')) return 'Banque & Finance';
   if (t.includes('startup') || t.includes('entrepreneuriat')) return 'Entrepreneuriat';
   if (t.includes('marketing')) return 'Marketing & Stratégie';
   return fallback;
@@ -148,14 +150,13 @@ async function scrapeRSS(): Promise<Article[]> {
       const items = xml.match(/<item[\s\S]*?<\/item>/gi) || [];
       let added = 0;
 
-      for (const item of items.slice(0, 15)) {
+      for (const item of items.slice(0, 20)) {
         const title = cleanHtml(extractText(item, 'title'));
         const description = cleanHtml(extractText(item, 'description'));
         const link = cleanHtml(extractText(item, 'link') || extractText(item, 'guid'));
         const pubDate = extractText(item, 'pubDate');
 
         if (!title || title.length < 10) continue;
-        // Filtre strict sur le titre
         if (!isTitleRelevant(title)) continue;
         if (pubDate && new Date(pubDate) < weekAgo) continue;
 
@@ -168,7 +169,7 @@ async function scrapeRSS(): Promise<Article[]> {
           origin: 'rss',
         });
         added++;
-        if (added >= 5) break; // Max 5 par source
+        if (added >= 5) break;
       }
       console.log(`RSS ${source.name}: ${added} articles retenus`);
     } catch { continue; }
@@ -179,7 +180,7 @@ async function scrapeRSS(): Promise<Article[]> {
 async function scrapeGNews(): Promise<Article[]> {
   const results: Article[] = [];
   const apiKey = process.env.GNEWS_API_KEY;
-  if (!apiKey) return [];
+  if (!apiKey) { console.log('GNews: clé manquante'); return []; }
 
   for (const query of GNEWS_QUERIES) {
     try {
@@ -187,7 +188,6 @@ async function scrapeGNews(): Promise<Article[]> {
       const res = await fetch(url, { signal: AbortSignal.timeout(8000) });
       if (!res.ok) continue;
       const data = await res.json();
-
       for (const article of data.articles || []) {
         if (!article.title || !isTitleRelevant(article.title)) continue;
         results.push({
@@ -214,9 +214,7 @@ function mergeAndSelect(rss: Article[], gnews: Article[]): Article[] {
     return true;
   });
 
-  const african = unique.filter(a =>
-    ['Agence Ecofin', 'Financial Afrik', 'Jeune Afrique'].includes(a.source)
-  );
+  const african = unique.filter(a => ['Agence Ecofin', 'Financial Afrik', 'Jeune Afrique'].includes(a.source));
   const gnewsItems = unique.filter(a => a.origin === 'gnews');
   const other = unique.filter(a => !african.includes(a) && !gnewsItems.includes(a));
 
@@ -232,36 +230,24 @@ Tu rédiges pour Samuel POODA, étudiant Finance & Comptabilité, fondateur IziC
 Ton ton : professionnel, pédagogique, accessible, ancré dans le contexte africain.
 
 Pour chacun des ${trends.length} sujets ci-dessous, génère :
-1. Un post LinkedIn avec hook, contexte, 4 points clés ▪, prise de position 💡, question 👇, hashtags
-2. Un article blog avec titre SEO, introduction (150 mots), 3 sections (200 mots chacune), conclusion (100 mots)
+1. Un post LinkedIn avec hook 🔥, contexte, 4 points clés ▪, analyse 💡, question 👇, hashtags
+2. Un article blog avec titre SEO, introduction (150 mots), 3 sections (200 mots), conclusion (100 mots)
 
-IMPORTANT : Réponds UNIQUEMENT avec un tableau JSON valide.
-Commence directement par [ et termine par ].
-Aucun texte avant ou après. Aucun backtick. Aucun markdown.
-Pour les sauts de ligne dans les valeurs JSON, utilise \\n.
+RÈGLE ABSOLUE : Réponds UNIQUEMENT avec un tableau JSON valide.
+- Commence par [ et termine par ]
+- Aucun texte avant ou après
+- Aucun backtick, aucun markdown
+- Sauts de ligne dans les valeurs : utilise \\n
 
-Format :
-[
-  {
-    "linkedin_post": "🔥 Hook\\n\\nContexte\\n\\n▪ Point 1\\n▪ Point 2\\n▪ Point 3\\n▪ Point 4\\n\\n💡 Mon analyse\\n\\n👇 Question\\n\\n#tag1 #tag2 #tag3",
-    "blog_title": "Titre SEO",
-    "blog_intro": "Introduction développée...",
-    "blog_sections": [
-      {"title": "Titre section 1", "content": "Contenu développé..."},
-      {"title": "Titre section 2", "content": "Contenu développé..."},
-      {"title": "Titre section 3", "content": "Contenu développé..."}
-    ],
-    "blog_conclusion": "Conclusion avec call to action...",
-    "hashtags": ["#Finance", "#Afrique", "#Digital"]
-  }
-]
+Format exact :
+[{"linkedin_post":"🔥 Hook\\n\\nContexte\\n\\n▪ Point 1\\n▪ Point 2\\n▪ Point 3\\n▪ Point 4\\n\\n💡 Analyse\\n\\n👇 Question\\n\\n#tag1 #tag2","blog_title":"Titre","blog_intro":"Intro...","blog_sections":[{"title":"S1","content":"..."},{"title":"S2","content":"..."},{"title":"S3","content":"..."}],"blog_conclusion":"Conclusion...","hashtags":["#Finance","#Afrique"]}]
 
-Les ${trends.length} sujets :
+Sujets :
 ${trends.map((t, i) => `${i + 1}. [${t.category}] ${t.title}\nContexte: ${t.description}`).join('\n\n')}`;
 
   try {
     const res = await fetch(
-      `https://generativelanguage.googleapis.com/v1beta/models/gemini-1.5-flash:generateContent?key=${apiKey}`,
+      `https://generativelanguage.googleapis.com/v1beta/models/gemini-2.5-flash:generateContent?key=${apiKey}`,
       {
         method: 'POST',
         headers: { 'Content-Type': 'application/json' },
@@ -276,7 +262,7 @@ ${trends.map((t, i) => `${i + 1}. [${t.category}] ${t.title}\nContexte: ${t.desc
     );
 
     const data = await res.json();
-    console.log('Gemini HTTP status:', res.status);
+    console.log('Gemini status:', res.status);
 
     if (!res.ok) {
       console.error('Gemini API error:', JSON.stringify(data));
@@ -284,10 +270,10 @@ ${trends.map((t, i) => `${i + 1}. [${t.category}] ${t.title}\nContexte: ${t.desc
     }
 
     const text = data.candidates?.[0]?.content?.parts?.[0]?.text || '';
-    console.log('Gemini raw (300 chars):', text.slice(0, 300));
+    console.log('Gemini raw (200 chars):', text.slice(0, 200));
 
     if (!text.trim()) {
-      console.error('Gemini returned empty text — check API key or quota');
+      console.error('Gemini returned empty text');
       return [];
     }
 
@@ -298,7 +284,7 @@ ${trends.map((t, i) => `${i + 1}. [${t.category}] ${t.title}\nContexte: ${t.desc
     const start = clean.indexOf('[');
     const end = clean.lastIndexOf(']');
     if (start === -1 || end === -1 || end <= start) {
-      console.error('No valid JSON array in Gemini response. Raw:', clean.slice(0, 500));
+      console.error('No JSON array found. Raw:', clean.slice(0, 300));
       return [];
     }
     clean = clean.slice(start, end + 1);
@@ -315,8 +301,6 @@ ${trends.map((t, i) => `${i + 1}. [${t.category}] ${t.title}\nContexte: ${t.desc
 
 async function saveToSupabase(trends: Article[], content: GeneratedContent[]) {
   const supabase = getSupabase();
-
-  // Supprimer les entrées de cette semaine avant d'insérer
   await supabase.from('weekly_trends').delete().eq('week_start', getWeekStart());
 
   const rows = trends.map((t, i) => {
@@ -339,10 +323,10 @@ async function saveToSupabase(trends: Article[], content: GeneratedContent[]) {
     };
   });
 
-  console.log('Sample row linkedin_post:', rows[0]?.linkedin_post?.slice(0, 100) || 'EMPTY');
+  console.log('Sample linkedin_post:', rows[0]?.linkedin_post?.slice(0, 100) || 'EMPTY');
 
   const { error } = await supabase.from('weekly_trends').insert(rows);
-  if (error) throw new Error(`Supabase insert: ${error.message}`);
+  if (error) throw new Error(`Supabase: ${error.message}`);
   console.log(`✅ ${rows.length} lignes sauvegardées`);
 }
 
@@ -374,7 +358,6 @@ export async function GET(request: NextRequest) {
 
     await saveToSupabase(trends, content);
 
-    // Email
     const dashboardUrl = `${process.env.NEXT_PUBLIC_SITE_URL}/dashboard`;
     await sendEmail(
       'poodasamuelpro@gmail.com',
